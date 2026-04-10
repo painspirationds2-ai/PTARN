@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Dashboard — ยอดขาย (ฝากขาย) 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --dark-blue: #1E3A5F;
+    --mid-blue: #2E6DA4;
+    --light-blue: #D6E4F0;
+    --teal: #1D9E75;
+    --warn: #E8A317;
+    --red: #D85A30;
+    --bg: #F4F6F9;
+    --card: #FFFFFF;
+    --text: #2C2C2A;
+    --muted: #6B7280;
+    --border: #E5E7EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+  /* ── Header ── */
+  .header { background: var(--dark-blue); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 18px; font-weight: 600; }
+  .header small { font-size: 12px; color: #9BB5D0; margin-top: 2px; display: block; }
+  .btn-refresh { background: var(--mid-blue); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .btn-refresh:hover { background: #1A5A8A; }
+  .btn-refresh svg { width: 14px; height: 14px; }
+
+  /* ── Status bar ── */
+  .status-bar { background: #EEF2F7; border-bottom: 1px solid var(--border); padding: 8px 24px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 12px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; display: inline-block; }
+  .status-dot.ok { background: var(--teal); }
+  .status-dot.loading { background: var(--warn); animation: pulse 1s infinite; }
+  .status-dot.error { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 0; background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; }
+  .tab { padding: 12px 20px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 3px solid transparent; transition: all .2s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--mid-blue); border-bottom-color: var(--mid-blue); font-weight: 600; }
+
+  /* ── Main layout ── */
+  .main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── KPI Cards ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: var(--card); border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .kpi-val { font-size: 22px; font-weight: 700; margin: 4px 0; color: var(--dark-blue); }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .kpi-pct { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-top: 4px; }
+  .pct-ok { background: #D1FAE5; color: #065F46; }
+  .pct-warn { background: #FEF3C7; color: #92400E; }
+  .pct-fail { background: #FEE2E2; color: #991B1B; }
+
+  /* ── Section header ── */
+  .section-hdr { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* ── Branch table ── */
+  .branch-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .branch-table th { background: var(--dark-blue); color: white; font-size: 11px; padding: 10px 12px; text-align: center; font-weight: 600; }
+  .branch-table th:first-child { text-align: left; }
+  .branch-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--border); text-align: center; }
+  .branch-table td:first-child { text-align: left; font-weight: 600; color: var(--dark-blue); }
+  .branch-table tr:nth-child(even) td { background: #FAFAFA; }
+  .branch-table tr:last-child td { border-bottom: none; font-weight: 700; background: #EEF2F7; }
+  .branch-table tr:hover td { background: var(--light-blue); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .tag-ok { background: #D1FAE5; color: #065F46; }
+  .tag-warn { background: #FEF3C7; color: #92400E; }
+  .tag-fail { background: #FEE2E2; color: #991B1B; }
+  .tag-up { background: #D1FAE5; color: #065F46; }
+  .tag-dn { background: #FEE2E2; color: #991B1B; }
+  .tag-flat { background: #F3F4F6; color: #6B7280; }
+
+  /* ── Bar row ── */
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label { min-width: 130px; font-size: 13px; font-weight: 600; color: var(--dark-blue); }
+  .bar-track { flex: 1; height: 20px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+  .bar-num { min-width: 90px; text-align: right; font-size: 13px; font-weight: 600; }
+  .bar-pct { min-width: 50px; text-align: right; font-size: 12px; color: var(--muted); }
+
+  /* ── Charts ── */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-card { background: var(--card); border-radius: 10px; padding: 16px; border: 1px solid var(--border); }
+  .chart-card-wide { background: var(--card); border-radius: 10px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; }
+  .chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+  @media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } }
+
+  /* ── Promo ── */
+  .promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .promo-card { background: var(--card); border-radius: 10px; padding: 14px; border: 1px solid var(--border); }
+  .promo-name { font-size: 13px; font-weight: 600; color: var(--dark-blue); margin-bottom: 6px; }
+  .promo-val { font-size: 20px; font-weight: 700; color: var(--teal); }
+  .promo-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Legend ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 11px; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* ── Loading overlay ── */
+  .loading-overlay { position: fixed; inset: 0; background: rgba(30,58,95,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; color: white; gap: 16px; }
+  .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: #9BB5D0; }
+
+  /* ── Config panel ── */
+  .config-card { background: var(--card); border-radius: 10px; padding: 20px; border: 1px solid var(--border); max-width: 600px; margin: 0 auto; }
+  .config-card label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .config-card input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+  .config-card .btn-save { background: var(--teal); color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 13px; width: 100%; }
+  .config-card .btn-save:hover { background: #148A63; }
+  .config-note { background: #EFF6FF; border-left: 4px solid var(--mid-blue); padding: 12px; border-radius: 0 6px 6px 0; font-size: 12px; color: var(--mid-blue); margin-bottom: 16px; line-height: 1.6; }
+
+  /* ── OKR banner ── */
+  .okr-banner { background: linear-gradient(135deg, #FEE2E2, #FEF3C7); border: 1px solid #FCA5A5; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: gap; }
+  .okr-banner .okr-title { font-weight: 700; color: #991B1B; font-size: 14px; }
+  .okr-banner .okr-sub { font-size: 12px; color: #B45309; margin-top: 2px; }
+  .okr-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .okr-pill { background: white; border: 1px solid #FCA5A5; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: #991B1B; }
+
+  .section-gap { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingMsg">กำลังโหลดข้อมูลจาก Google Sheets...</div>
+</div>
+
+<div class="header">
+  <div>
+    <h1>Sales Dashboard — ยอดขาย (ฝากขาย) 2026</h1>
+    <small id="lastUpdate">ยังไม่ได้โหลดข้อมูล</small>
+  </div>
+  <button class="btn-refresh" onclick="loadData()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0115 0M20 15a9 9 0 01-15 0"/></svg>
+    Refresh
+  </button>
+</div>
+
+<div class="status-bar">
+  <span class="status-dot" id="statusDot"></span>
+  <span id="statusText">กำลังเชื่อมต่อ...</span>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('overview',this)">ภาพรวม</button>
+  <button class="tab" onclick="showTab('branches',this)">รายสาขา</button>
+  <button class="tab" onclick="showTab('promo',this)">โปรโมชั่น</button>
+  <button class="tab" onclick="showTab('setup',this)">⚙ ตั้งค่า</button>
+</div>
+
+<div class="main">
+
+  <!-- ── OVERVIEW ── -->
+  <div id="panel-overview" class="panel active">
+    <div id="kpiGrid" class="kpi-grid"></div>
+
+    <div class="okr-banner">
+      <div>
+        <div class="okr-title">⚠ OKR Status — ต้องทำให้ได้ ≥ 90% ของเป้า</div>
+        <div class="okr-sub" id="okrSub">กำลังโหลด...</div>
+      </div>
+      <div class="okr-pills" id="okrPills"></div>
+    </div>
+
+    <div class="chart-card-wide section-gap">
+      <div class="chart-title">ยอดขายจริง vs เป้าหมายรายเดือน</div>
+      <div class="legend" id="legend-main"></div>
+      <div style="position:relative;height:260px"><canvas id="chartMain" role="img" aria-label="Monthly actual vs target sales bar chart"></canvas></div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">สัดส่วนยอดขายแต่ละสาขา (Jan–Mar 2026)</div>
+        <div style="position:relative;height:220px"><canvas id="chartPie" role="img" aria-label="Branch share pie chart Jan to Mar 2026"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">% vs เป้า แต่ละสาขา (Jan–Mar รวม)</div>
+        <div style="position:relative;height:220px"><canvas id="chartPct" role="img" aria-label="Branch percent vs target bar chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BRANCHES ── -->
+  <div id="panel-branches" class="panel">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+      <label style="font-size:13px;color:var(--muted)">เลือกเดือน:</label>
+      <select id="monthSel" onchange="renderBranchBars()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;">
+        <option value="0">Dec 2025</option>
+        <option value="1">Jan 2026</option>
+        <option value="2">Feb 2026</option>
+        <option value="3" selected>Mar 2026</option>
+        <option value="4">Apr 2026 MTD</option>
+      </select>
+    </div>
+
+    <div class="section-gap">
+      <div class="section-hdr">ยอดขายรายสาขา (เทียบเป้า)</div>
+      <div id="barRows"></div>
+    </div>
+
+    <div class="chart-card-wide section-gap">
+      <div class="chart-title">Trend รายสาขา ทุกเดือน</div>
+      <div class="legend" id="legend-trend"></div>
+      <div style="position:relative;height:280px"><canvas id="chartTrend" role="img" aria-label="Branch sales trend line chart"></canvas></div>
+    </div>
+
+    <div class="section-gap">
+      <div class="section-hdr">ตารางสรุปยอดขายรายสาขา</div>
+      <div style="overflow-x:auto">
+        <table class="branch-table" id="branchTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROMO ── -->
+  <div id="panel-promo" class="panel">
+    <div class="promo-grid" id="promoKpi"></div>
+
+    <div class="chart-card-wide section-gap">
+      <div class="chart-title">ยอดขายรายสัปดาห์ (โปรโมชั่น) — Oct 2025 ถึง Jan 2026</div>
+      <div class="legend" id="legend-promo"></div>
+      <div style="position:relative;height:260px"><canvas id="chartPromo" role="img" aria-label="Weekly promo sales trend line chart"></canvas></div>
+    </div>
+
+    <div class="section-hdr" style="margin-top:4px">Best Promo Analysis — สรุปโปรที่ได้ผล</div>
+    <div id="promoAnalysis"></div>
+  </div>
+
+  <!-- ── SETUP ── -->
+  <div id="panel-setup" class="panel">
+    <div class="config-card">
+      <div class="config-note">
+        <strong>วิธีเชื่อมกับ Google Sheets:</strong><br>
+        1. เปิด Google Sheets ที่มีไฟล์ Excel นี้<br>
+        2. ไปที่ <strong>Extensions → Apps Script</strong><br>
+        3. วางโค้ด Apps Script ที่ได้มาพร้อมไฟล์นี้ (ไฟล์ <code>AppScript.gs</code>)<br>
+        4. กด Deploy → New deployment → Web App → Execute as Me → Anyone<br>
+        5. Copy URL ที่ได้แล้ววางด้านล่างนี้<br>
+        <br>
+        ถ้าเปิดผ่าน Google Sheets (iframe) ระบบจะดึงข้อมูลอัตโนมัติผ่าน <code>google.script.run</code>
+      </div>
+
+      <label>Apps Script Web App URL</label>
+      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/xxxx/exec" value="">
+
+      <button class="btn-save" onclick="saveConfig()">บันทึกและโหลดข้อมูล</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ──────────────────────────────────────────────────────────────
+//  CONFIG & STATE
+// ──────────────────────────────────────────────────────────────
+const MONTHS = ['Dec 2025','Jan 2026','Feb 2026','Mar 2026','Apr 2026 MTD'];
+const BRANCH_COLORS = ['#1E3A5F','#2E6DA4','#1D9E75','#E8A317','#D85A30','#7F77DD','#D4537E','#888780'];
+const OKR_TARGET = 0.9;
+const TARGETS = { 'Dec 2025':475000,'Jan 2026':435000,'Feb 2026':425000,'Mar 2026':445000,'Apr 2026 MTD':445000 };
+const BRANCH_TARGETS = {
+  'MB Siam':          {'Dec 2025':80000,'Jan 2026':80000,'Feb 2026':80000,'Mar 2026':80000,'Apr 2026 MTD':80000},
+  'MB Westgate':      {'Dec 2025':35000,'Jan 2026':35000,'Feb 2026':35000,'Mar 2026':40000,'Apr 2026 MTD':40000},
+  'MB Saraburi':      {'Dec 2025':40000,'Jan 2026':40000,'Feb 2026':40000,'Mar 2026':40000,'Apr 2026 MTD':40000},
+  'Kim Fashion':      {'Dec 2025':35000,'Jan 2026':35000,'Feb 2026':35000,'Mar 2026':35000,'Apr 2026 MTD':35000},
+  'ASAP':             {'Dec 2025':75000,'Jan 2026':75000,'Feb 2026':75000,'Mar 2026':75000,'Apr 2026 MTD':75000},
+  'Freak Siam':       {'Dec 2025':70000,'Jan 2026':70000,'Feb 2026':70000,'Mar 2026':70000,'Apr 2026 MTD':70000},
+  'Frank Siam':       {'Dec 2025':20000,'Jan 2026':20000,'Feb 2026':30000,'Mar 2026':45000,'Apr 2026 MTD':45000},
+  'Frank Emsphere':   {'Dec 2025':60000,'Jan 2026':60000,'Feb 2026':60000,'Mar 2026':60000,'Apr 2026 MTD':60000},
+};
+
+// Fallback data (used when no script URL configured)
+const FALLBACK = {
+  months: MONTHS,
+  branches: ['MB Siam','MB Westgate','MB Saraburi','Kim Fashion','ASAP','Freak Siam','Frank Siam','Frank Emsphere'],
+  monthly: [
+    [74494,40206,17267,20872,43513,67998,38710,55180],  // Dec25
+    [54016,32388,11630,23140,45571,54937,32530,54850],  // Jan26
+    [48384,19388,12028,29925,61139,42875,42660,61480],  // Feb26
+    [66377,24542,13398,18622,59358,40403,40216,48439],  // Mar26
+    [24863, 6858, 4041, 8784,22656, 7821,10485,17334],  // Apr26 MTD
+  ],
+  promoWeeks: ['03-09/10','10-16/10','17-23/10','24-30/10','31-6/11','7-13/11','14-20/11','21-27/11','28-4/12','5-11/12','12-18/12','19-25/12','26-1/01'],
+  promoTotals: [89872,78906,68877,65918,78531,78901,70009,71115,73979,91593,84040,90789,125896],
+  promoBranches: [
+    {name:'MB Siam',data:[14152,14022,12393,12548,10894,16876,16624,16985,11968,11792,11130,16920,30352]},
+    {name:'ASAP',data:[11345,13974,11506,8160,7191,11817,11633,14931,10512,6221,10880,8800,12432]},
+    {name:'Freak Siam',data:[14571,11898,10530,8964,10638,12132,6957,6645,19132,15432,16028,11510,14708]},
+    {name:'Frank Emsphere',data:[16150,7510,8550,14200,12150,7420,9560,9000,3480,8590,14130,13830,17170]},
+    {name:'MB Westgate',data:[6320,9990,8685,6255,9864,5463,4642,5635,4260,10038,6762,10280,12876]},
+  ]
+};
+
+let DATA = null;
+let charts = {};
+
+// ──────────────────────────────────────────────────────────────
+//  LOAD DATA
+// ──────────────────────────────────────────────────────────────
+function setStatus(state, msg) {
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  dot.className = 'status-dot ' + state;
+  txt.textContent = msg;
+}
+
+async function loadData() {
+  setStatus('loading','กำลังโหลดข้อมูล...');
+  showLoading('กำลังโหลดข้อมูลจาก Google Sheets...');
+
+  const url = localStorage.getItem('scriptUrl') || document.getElementById('scriptUrl').value;
+
+  // Try Google Apps Script (when embedded in Sheets)
+  if (typeof google !== 'undefined' && google.script) {
+    google.script.run
+      .withSuccessHandler(d => { DATA = JSON.parse(d); hideLoading(); renderAll(); setStatus('ok','โหลดสำเร็จจาก Google Sheets'); })
+      .withFailureHandler(e => { DATA = FALLBACK; hideLoading(); renderAll(); setStatus('error','ใช้ข้อมูล fallback: '+e.message); })
+      .getDashboardData();
+    return;
+  }
+
+  // Try Apps Script Web App URL
+  if (url && url.includes('script.google.com')) {
+    try {
+      const res = await fetch(url + '?action=getDashboardData');
+      if (res.ok) {
+        DATA = await res.json();
+        hideLoading();
+        renderAll();
+        setStatus('ok','โหลดสำเร็จจาก Apps Script Web App · ' + new Date().toLocaleTimeString('th-TH'));
+        document.getElementById('lastUpdate').textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+        return;
+      }
+    } catch(e) {}
+  }
+
+  // Fallback to embedded data
+  DATA = FALLBACK;
+  hideLoading();
+  renderAll();
+  setStatus('ok','ใช้ข้อมูล Embedded (เชื่อม Apps Script เพื่ออัปเดตแบบ real-time)');
+  document.getElementById('lastUpdate').textContent = 'ข้อมูล ณ 10 เม.ย. 2026 · ตั้งค่า Apps Script URL เพื่อ Live Data';
+}
+
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg;
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+// ──────────────────────────────────────────────────────────────
+//  RENDER ALL
+// ──────────────────────────────────────────────────────────────
+function renderAll() {
+  renderKPI();
+  renderOKR();
+  renderMainChart();
+  renderPieChart();
+  renderPctChart();
+  renderBranchBars();
+  renderBranchTable();
+  renderTrendChart();
+  renderPromo();
+}
+
+function fmt(v) { return new Intl.NumberFormat('th-TH').format(Math.round(v)); }
+function pct(a,b) { return b>0 ? (a/b*100).toFixed(1)+'%' : '-'; }
+function pctClass(v) { return v>=90?'pct-ok':v>=70?'pct-warn':'pct-fail'; }
+function tagClass(v) { return v>=85?'tag-ok':v>=70?'tag-warn':'tag-fail'; }
+
+// ──────────────────────────────────────────────────────────────
+//  KPI CARDS
+// ──────────────────────────────────────────────────────────────
+function renderKPI() {
+  let html = '';
+  DATA.months.forEach((m, mi) => {
+    const total = DATA.monthly[mi].reduce((s,v)=>s+v,0);
+    const tgt = TARGETS[m] || 0;
+    const p = tgt>0 ? total/tgt*100 : 0;
+    const pc = pctClass(p);
+    const isApr = m.includes('Apr');
+    html += `<div class="kpi-card">
+      <div class="kpi-label">${m}</div>
+      <div class="kpi-val">฿${fmt(total)}</div>
+      <div class="kpi-sub">เป้า ฿${fmt(tgt)}</div>
+      <span class="kpi-pct ${pc}">${isApr?'MTD: ':''}${p.toFixed(1)}%</span>
+    </div>`;
+  });
+  document.getElementById('kpiGrid').innerHTML = html;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  OKR BANNER
+// ──────────────────────────────────────────────────────────────
+function renderOKR() {
+  let pills = '';
+  let failCount = 0;
+  DATA.months.forEach((m,mi) => {
+    if (m.includes('Apr')) return;
+    const total = DATA.monthly[mi].reduce((s,v)=>s+v,0);
+    const tgt = TARGETS[m]||0;
+    const p = tgt>0?total/tgt*100:0;
+    const ok = p>=90;
+    if(!ok) failCount++;
+    pills += `<span class="okr-pill" style="${ok?'color:#065F46;border-color:#6EE7B7':'color:#991B1B;border-color:#FCA5A5'}">${m}: ${p.toFixed(1)}% ${ok?'✓':'✗'}</span>`;
+  });
+  document.getElementById('okrPills').innerHTML = pills;
+  document.getElementById('okrSub').textContent = failCount>0
+    ? `ยังไม่ผ่าน ${failCount} เดือน — ต้องทำให้ได้อย่างน้อย 90% ทุกเดือน`
+    : 'ผ่านทุกเดือน!';
+}
+
+// ──────────────────────────────────────────────────────────────
+//  MAIN CHART: actual vs target
+// ──────────────────────────────────────────────────────────────
+function renderMainChart() {
+  if (charts.main) charts.main.destroy();
+  const labels = DATA.months.filter(m=>!m.includes('Apr'));
+  const actuals = DATA.months.filter(m=>!m.includes('Apr')).map((_,i)=>DATA.monthly[i].reduce((s,v)=>s+v,0));
+  const targets = labels.map(m=>TARGETS[m]||0);
+
+  document.getElementById('legend-main').innerHTML = `
+    <div class="legend-item"><div class="legend-dot" style="background:#2E6DA4"></div>ยอดขายจริง</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#CBD5E1"></div>เป้าหมาย</div>`;
+
+  charts.main = new Chart(document.getElementById('chartMain'), {
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'ยอดขายจริง',data:actuals,backgroundColor:'#2E6DA4',borderRadius:5},
+      {label:'เป้าหมาย',data:targets,backgroundColor:'#CBD5E1',borderRadius:5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.05)'}},x:{ticks:{autoSkip:false}}}}
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PIE CHART: branch share Jan-Mar
+// ──────────────────────────────────────────────────────────────
+function renderPieChart() {
+  if (charts.pie) charts.pie.destroy();
+  const totals = DATA.branches.map((b,bi)=>[1,2,3].map(mi=>DATA.monthly[mi][bi]).reduce((s,v)=>s+v,0));
+  charts.pie = new Chart(document.getElementById('chartPie'), {
+    type:'doughnut',
+    data:{labels:DATA.branches,datasets:[{data:totals,backgroundColor:BRANCH_COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:6}},tooltip:{callbacks:{label:c=>c.label+': ฿'+fmt(c.raw)+' ('+pct(c.raw,totals.reduce((s,v)=>s+v,0))+')'}}}}
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PCT BAR CHART
+// ──────────────────────────────────────────────────────────────
+function renderPctChart() {
+  if (charts.pct) charts.pct.destroy();
+  const pcts = DATA.branches.map((b,bi)=>{
+    const actual = [1,2,3].map(mi=>DATA.monthly[mi][bi]).reduce((s,v)=>s+v,0);
+    const tgt = ['Jan 2026','Feb 2026','Mar 2026'].reduce((s,m)=>s+(BRANCH_TARGETS[b]?.[m]||0),0);
+    return tgt>0?(actual/tgt*100):0;
+  });
+  const colors = pcts.map(p=>p>=85?'#1D9E75':p>=70?'#E8A317':'#D85A30');
+  charts.pct = new Chart(document.getElementById('chartPct'), {
+    type:'bar',
+    data:{labels:DATA.branches,datasets:[{data:pcts,backgroundColor:colors,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+'%'}}},
+      scales:{x:{min:0,max:120,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:11}}}}}
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  BRANCH BARS
+// ──────────────────────────────────────────────────────────────
+function renderBranchBars() {
+  const mi = parseInt(document.getElementById('monthSel').value);
+  const m = DATA.months[mi];
+  const vals = DATA.monthly[mi];
+  const maxV = Math.max(...vals);
+  const prevVals = mi > 0 ? DATA.monthly[mi-1] : null;
+
+  let html = '';
+  const sorted = DATA.branches.map((b,i)=>({b,i,v:vals[i]})).sort((a,x)=>x.v-a.v);
+  sorted.forEach(({b,i,v}) => {
+    const tgt = BRANCH_TARGETS[b]?.[m]||0;
+    const p = tgt>0?(v/tgt*100):0;
+    const barColor = p>=85?'#1D9E75':p>=70?'#E8A317':'#D85A30';
+    const barW = maxV>0?Math.round(v/maxV*100):0;
+    const prev = prevVals?prevVals[i]:null;
+    const diff = prev!=null?(v-prev):0;
+    const trendHtml = prev!=null
+      ? `<span class="tag ${diff>=0?'tag-up':'tag-dn'}" style="font-size:11px">${diff>=0?'▲':'▼'}฿${fmt(Math.abs(diff))}</span>`
+      : '';
+    html += `<div class="bar-row">
+      <div class="bar-label">${b}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${barW}%;background:${barColor}"></div></div>
+      <div class="bar-num">฿${fmt(v)}</div>
+      <div class="bar-pct">${p.toFixed(0)}%</div>
+      ${trendHtml}
+    </div>`;
+  });
+  document.getElementById('barRows').innerHTML = html;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  BRANCH TABLE
+// ──────────────────────────────────────────────────────────────
+function renderBranchTable() {
+  let html = `<thead><tr>
+    <th>สาขา</th>
+    ${DATA.months.map(m=>`<th>${m}</th>`).join('')}
+    <th>รวม Jan–Mar</th><th>% vs เป้า</th><th>สถานะ</th><th>Trend</th>
+  </tr></thead><tbody>`;
+
+  DATA.branches.forEach((b,bi)=>{
+    const vals = DATA.months.map((_,mi)=>DATA.monthly[mi][bi]);
+    const janMar = [1,2,3].map(mi=>vals[mi]).reduce((s,v)=>s+v,0);
+    const tgtTotal = ['Jan 2026','Feb 2026','Mar 2026'].reduce((s,m)=>s+(BRANCH_TARGETS[b]?.[m]||0),0);
+    const p = tgtTotal>0?(janMar/tgtTotal*100):0;
+    const janVal = vals[1], marVal = vals[3];
+    const trendTag = marVal>janVal?'tag-up':'tag-dn';
+    const trendTxt = marVal>janVal?'↑ Up':'↓ Down';
+    html += `<tr>
+      <td>${b}</td>
+      ${vals.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
+      <td><strong>฿${fmt(janMar)}</strong></td>
+      <td>${p.toFixed(1)}%</td>
+      <td><span class="tag ${tagClass(p)}">${p>=85?'Good':p>=70?'Fair':'Low'}</span></td>
+      <td><span class="tag ${trendTag}">${trendTxt}</span></td>
+    </tr>`;
+  });
+
+  // Total row
+  const totals = DATA.months.map((_,mi)=>DATA.monthly[mi].reduce((s,v)=>s+v,0));
+  const totalJanMar = [1,2,3].map(mi=>totals[mi]).reduce((s,v)=>s+v,0);
+  const totalTgt = [435000,425000,445000].reduce((s,v)=>s+v,0);
+  const totalP = (totalJanMar/totalTgt*100);
+  html += `<tr>
+    <td>TOTAL</td>
+    ${totals.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
+    <td><strong>฿${fmt(totalJanMar)}</strong></td>
+    <td>${totalP.toFixed(1)}%</td>
+    <td colspan="2"></td>
+  </tr>`;
+
+  html += '</tbody>';
+  document.getElementById('branchTable').innerHTML = html;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  TREND CHART
+// ──────────────────────────────────────────────────────────────
+function renderTrendChart() {
+  if (charts.trend) charts.trend.destroy();
+  document.getElementById('legend-trend').innerHTML = DATA.branches.map((b,i)=>
+    `<div class="legend-item"><div class="legend-dot" style="background:${BRANCH_COLORS[i]}"></div>${b}</div>`).join('');
+
+  charts.trend = new Chart(document.getElementById('chartTrend'), {
+    type:'line',
+    data:{
+      labels:DATA.months,
+      datasets:DATA.branches.map((b,i)=>({
+        label:b,
+        data:DATA.months.map((_,mi)=>DATA.monthly[mi][i]),
+        borderColor:BRANCH_COLORS[i],
+        backgroundColor:BRANCH_COLORS[i]+'22',
+        tension:.3,pointRadius:4,borderWidth:2,
+        borderDash:i>4?[5,3]:[]
+      }))
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.05)'}},x:{ticks:{autoSkip:false}}}}
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PROMO
+// ──────────────────────────────────────────────────────────────
+function renderPromo() {
+  // KPI cards
+  const maxWkIdx = DATA.promoTotals.indexOf(Math.max(...DATA.promoTotals));
+  const minWkIdx = DATA.promoTotals.indexOf(Math.min(...DATA.promoTotals));
+  const avg = DATA.promoTotals.reduce((s,v)=>s+v,0)/DATA.promoTotals.length;
+  document.getElementById('promoKpi').innerHTML = `
+    <div class="promo-card"><div class="promo-name">สัปดาห์ยอดสูงสุด</div>
+      <div class="promo-val">฿${fmt(DATA.promoTotals[maxWkIdx])}</div>
+      <div class="promo-meta">${DATA.promoWeeks[maxWkIdx]}</div></div>
+    <div class="promo-card"><div class="promo-name">สัปดาห์ยอดต่ำสุด</div>
+      <div class="promo-val" style="color:#D85A30">฿${fmt(DATA.promoTotals[minWkIdx])}</div>
+      <div class="promo-meta">${DATA.promoWeeks[minWkIdx]}</div></div>
+    <div class="promo-card"><div class="promo-name">เฉลี่ยต่อสัปดาห์</div>
+      <div class="promo-val" style="color:#2E6DA4">฿${fmt(avg)}</div>
+      <div class="promo-meta">ทั้งหมด ${DATA.promoWeeks.length} วีค</div></div>`;
+
+  // Chart
+  if (charts.promo) charts.promo.destroy();
+  const promoColors = ['#1E3A5F','#D85A30','#1D9E75','#7F77DD','#2E6DA4'];
+  document.getElementById('legend-promo').innerHTML = [
+    {name:'รวมทุกสาขา',color:'#2E6DA4'},
+    ...DATA.promoBranches.map((b,i)=>({name:b.name,color:promoColors[i]}))
+  ].map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${l.color}"></div>${l.name}</div>`).join('');
+
+  charts.promo = new Chart(document.getElementById('chartPromo'), {
+    type:'line',
+    data:{
+      labels:DATA.promoWeeks,
+      datasets:[
+        {label:'รวมทุกสาขา',data:DATA.promoTotals,borderColor:'#2E6DA4',backgroundColor:'#2E6DA422',tension:.3,pointRadius:5,borderWidth:3,fill:true},
+        ...DATA.promoBranches.map((b,i)=>({
+          label:b.name,data:b.data,borderColor:promoColors[i],tension:.3,pointRadius:3,borderWidth:1.5
+        }))
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.05)'}},x:{ticks:{autoSkip:true,maxRotation:45,font:{size:10}}}}}
+  });
+
+  // Analysis cards
+  const analyses = [
+    {name:'2 PC Dis 10% + Buy 800 Free Gift',where:'MB Siam · สัปดาห์ 26-1/01',val:'฿30,352',status:'Top week',cls:'tag-ok'},
+    {name:'2 PC Dis 10% (มาตรฐาน)',where:'ใช้ทั่วไปทุกสาขา · ยอดปานกลาง',val:'฿8,000–16,000/wk',status:'Baseline',cls:'tag-warn'},
+    {name:'ไม่มีโปร / Renovate',where:'Frank Siam ช่วง Renovation',val:'฿0–1,000',status:'ต่ำสุด',cls:'tag-fail'},
+  ];
+  document.getElementById('promoAnalysis').innerHTML = analyses.map(a=>`
+    <div style="background:white;border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--dark-blue)">${a.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${a.where}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${a.val}</div>
+        <span class="tag ${a.cls}" style="margin-top:4px">${a.status}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  TAB SWITCHING
+// ──────────────────────────────────────────────────────────────
+function showTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  CONFIG
+// ──────────────────────────────────────────────────────────────
+function saveConfig() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (url) localStorage.setItem('scriptUrl', url);
+  loadData();
+}
+
+// ──────────────────────────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────────────────────────
+const savedUrl = localStorage.getItem('scriptUrl');
+if (savedUrl) document.getElementById('scriptUrl').value = savedUrl;
+loadData();
+</script>
+</body>
+</html>
