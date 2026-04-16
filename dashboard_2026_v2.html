@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sales Dashboard 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --dark:#1E3A5F;--mid:#2E6DA4;--teal:#1D9E75;--red:#D85A30;--warn:#E8A317;
+  --purple:#7F77DD;--bg:#F0F3F8;--card:#fff;--text:#1a1a2e;--muted:#64748B;
+  --border:#E2E8F0;--green:#1D9E75;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+
+/* ── NAV ── */
+.nav{background:var(--dark);padding:0 24px;display:flex;align-items:stretch;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:14px 20px 14px 0;border-right:1px solid rgba(255,255,255,.1);margin-right:16px}
+.nav-brand h1{font-size:15px;font-weight:700;color:#fff}
+.nav-brand small{font-size:11px;color:#9BB5D0;display:block}
+.nav-tab{padding:0 18px;color:rgba(255,255,255,.65);border:none;background:none;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;border-bottom:3px solid transparent;transition:all .2s;height:100%}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-tab.active{color:#fff;border-bottom-color:var(--teal);background:rgba(255,255,255,.05)}
+.nav-tab .icon{font-size:15px}
+.nav-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#148A63}
+.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}.btn-ghost:hover{background:rgba(255,255,255,.2)}
+#statusDot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#6B7280}
+#statusDot.ok{background:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.25)}
+#statusDot.loading{background:var(--warn);animation:pulse 1s infinite}
+#statusDot.err{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── LAYOUT ── */
+.main{padding:20px 24px;max-width:1440px;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+
+/* ── SECTION HDR ── */
+.sec-hdr{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.sec-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── KPI GRID ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.kpi{background:var(--card);border-radius:10px;padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.ok::before{background:var(--teal)}
+.kpi.warn::before{background:var(--warn)}
+.kpi.fail::before{background:var(--red)}
+.kpi.neutral::before{background:var(--mid)}
+.kpi-lbl{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.kpi-val{font-size:19px;font-weight:800;color:var(--text);line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.kpi-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px}
+.badge-ok{background:#D1FAE5;color:#065F46}
+.badge-warn{background:#FEF3C7;color:#92400E}
+.badge-fail{background:#FEE2E2;color:#991B1B}
+.badge-neu{background:#E0E7FF;color:#3730A3}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:12px;padding:18px 20px;border:1px solid var(--border);margin-bottom:16px}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
+
+/* ── CHART WRAPPER ── */
+.chart-wrap{position:relative;width:100%}
+
+/* ── MONTH SELECTOR ── */
+.month-sel-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.pill-group{display:flex;gap:4px;flex-wrap:wrap}
+.pill{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .15s;font-weight:600}
+.pill:hover{border-color:var(--mid);color:var(--mid)}
+.pill.active{background:var(--mid);color:#fff;border-color:var(--mid)}
+select.sel{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer}
+
+/* ── BRANCH TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:var(--dark);color:#fff;padding:9px 12px;text-align:center;font-size:11px;font-weight:700;position:sticky;top:0}
+.data-table th:first-child{text-align:left}
+.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:center}
+.data-table td:first-child{text-align:left;font-weight:700;color:var(--dark)}
+.data-table tr:nth-child(even) td{background:#FAFBFC}
+.data-table tr:hover td{background:rgba(46,109,164,.05)}
+.data-table tfoot td{background:#EEF2FF;font-weight:700;border-top:2px solid var(--mid)}
+.tbl-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);overflow-x:auto}
+
+/* ── BAR ROWS (branch bars) ── */
+.bar-rows{display:flex;flex-direction:column;gap:8px}
+.brow{display:flex;align-items:center;gap:10px}
+.brow-name{width:140px;font-size:12px;font-weight:700;color:var(--dark);flex-shrink:0}
+.brow-track{flex:1;height:22px;background:#EEF2F7;border-radius:5px;overflow:hidden}
+.brow-fill{height:100%;border-radius:5px;transition:width .5s ease;display:flex;align-items:center;padding-left:8px}
+.brow-fill span{font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.brow-val{width:90px;text-align:right;font-size:12px;font-weight:700}
+.brow-pct{width:45px;text-align:right;font-size:11px;color:var(--muted)}
+.brow-trend{width:65px;text-align:right;font-size:11px;font-weight:700}
+
+/* ── TREND ARROW ── */
+.up{color:var(--teal)}.dn{color:var(--red)}.flat{color:var(--muted)}
+
+/* ── STATUS TAG ── */
+.tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.tag-ok{background:#D1FAE5;color:#065F46}
+.tag-warn{background:#FEF3C7;color:#92400E}
+.tag-fail{background:#FEE2E2;color:#991B1B}
+.tag-neu{background:#E0E7FF;color:#3730A3}
+
+/* ── PROMO PLANNER ── */
+.promo-input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-bottom:20px}
+.promo-card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.promo-card-header{background:var(--dark);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.promo-card-header .branch-name{font-weight:700;font-size:13px}
+.promo-card-body{padding:14px 16px}
+.promo-form-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.promo-form-row label{font-size:12px;color:var(--muted);min-width:110px;font-weight:600}
+.promo-form-row input,.promo-form-row select{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#FAFAFA}
+.promo-form-row input:focus,.promo-form-row select:focus{border-color:var(--mid);outline:none;background:#fff}
+.promo-result{background:linear-gradient(135deg,#EEF7FF,#E8F5E9);border-radius:8px;padding:10px 12px;margin-top:10px;border:1px solid #C3E6CB}
+.promo-result .rec-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.promo-result .rec-7{font-size:14px;font-weight:800;color:var(--mid);margin:3px 0}
+.promo-result .rec-5{font-size:13px;font-weight:700;color:var(--teal)}
+.promo-result .rec-reason{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── PROMO HISTORY TABLE ── */
+.promo-history{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.history-header{background:var(--mid);color:#fff;padding:12px 16px;font-weight:700;font-size:13px}
+.history-scroll{overflow-x:auto}
+
+/* ── LEGEND ── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+
+/* ── LOADING ── */
+.loading-cover{position:fixed;inset:0;background:rgba(30,58,95,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{color:#9BB5D0;font-size:13px}
+
+/* ── OKR BANNER ── */
+.okr-banner{background:linear-gradient(135deg,#FEE2E2,#FEF3C7);border:1px solid #FCA5A5;border-radius:12px;padding:14px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.okr-left{}.okr-title{font-weight:800;color:#991B1B;font-size:14px}
+.okr-sub{font-size:12px;color:#B45309;margin-top:2px}
+.okr-pills{display:flex;flex-wrap:wrap;gap:6px}
+.okr-pill{background:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;border:1px solid #FCA5A5;color:#991B1B}
+.okr-pill.pass{border-color:#6EE7B7;color:#065F46}
+
+/* ── INSIGHT BOX ── */
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
+.insight{background:var(--card);border-radius:10px;border-left:4px solid var(--mid);padding:12px 16px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.insight.insight-ok{border-left-color:var(--teal)}
+.insight.insight-warn{border-left-color:var(--warn)}
+.insight.insight-fail{border-left-color:var(--red)}
+.insight-ico{font-size:18px;margin-bottom:6px}
+.insight-title{font-size:13px;font-weight:700;color:var(--text)}
+.insight-body{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+
+/* ── SETUP ── */
+.setup-card{max-width:560px;background:var(--card);border-radius:12px;padding:24px;border:1px solid var(--border)}
+.setup-note{background:#EFF6FF;border-left:4px solid var(--mid);border-radius:0 8px 8px 0;padding:12px;font-size:12px;color:#1E40AF;line-height:1.6;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}
+.form-group input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px}
+.form-group input:focus{border-color:var(--mid);outline:none}
+</style>
+</head>
+<body>
+
+<div class="loading-cover" id="loader">
+  <div class="spinner"></div>
+  <div class="load-txt" id="loadMsg">กำลังโหลดข้อมูล...</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div>
+      <h1>Sales Dashboard</h1>
+      <small>ยอดขาย (ฝากขาย) 2026</small>
+    </div>
+  </div>
+  <button class="nav-tab active" onclick="showTab('overview',this)"><span class="icon">📊</span>ภาพรวม</button>
+  <button class="nav-tab" onclick="showTab('branches',this)"><span class="icon">🏪</span>รายสาขา</button>
+  <button class="nav-tab" onclick="showTab('promo',this)"><span class="icon">🎯</span>โปรโมชั่น</button>
+  <button class="nav-tab" onclick="showTab('setup',this)"><span class="icon">⚙</span>ตั้งค่า</button>
+  <div class="nav-actions">
+    <span id="statusDot"></span>
+    <button class="btn btn-primary" onclick="loadData()">↻ Refresh</button>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- ════════════════════════════ OVERVIEW ════════════════════ -->
+<div id="panel-overview" class="panel active">
+
+  <div id="kpiRow" class="kpi-row"></div>
+
+  <div id="okrBanner" class="okr-banner">
+    <div class="okr-left">
+      <div class="okr-title">⚠ OKR Status — เป้าหมาย ≥ 90% ทุกเดือน</div>
+      <div class="okr-sub" id="okrSub">กำลังโหลด...</div>
+    </div>
+    <div class="okr-pills" id="okrPills"></div>
+  </div>
+
+  <div id="insightGrid" class="insight-grid"></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">ยอดขายจริง vs เป้าหมายรายเดือน</div>
+      <div class="legend" id="leg-main"></div>
+      <div class="chart-wrap" style="height:230px"><canvas id="cMain" role="img" aria-label="Monthly sales vs target bar chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">สัดส่วนยอดขาย Jan–Apr 2026 (สาขา)</div>
+      <div class="chart-wrap" style="height:230px"><canvas id="cPie" role="img" aria-label="Branch share pie chart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Trend ยอดขายรายสาขา — Dec 2025 ถึง Dec 2026</div>
+    <div class="legend" id="leg-trend"></div>
+    <div class="chart-wrap" style="height:260px"><canvas id="cTrend" role="img" aria-label="Branch trend line chart"></canvas></div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════ BRANCHES ════════════════════ -->
+<div id="panel-branches" class="panel">
+
+  <div class="month-sel-row">
+    <span style="font-size:13px;font-weight:700;color:var(--muted)">เลือกเดือน:</span>
+    <div class="pill-group" id="monthPills"></div>
+  </div>
+
+  <div class="grid-2" style="align-items:start">
+    <div class="card">
+      <div class="card-title" id="barTitle">ยอดขายรายสาขา</div>
+      <div class="bar-rows" id="barRows"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">% vs เป้า (สาขา)</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="cPct" role="img" aria-label="Branch percent vs target"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ตารางยอดขายรายสาขา × ทุกเดือน</div>
+    <div class="tbl-wrap">
+      <table class="data-table" id="branchTable"></table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════ PROMO ════════════════════════ -->
+<div id="panel-promo" class="panel">
+
+  <div class="card" style="background:linear-gradient(135deg,#EEF7FF,#E8F5E9);border-color:#C3E6CB">
+    <div class="card-title" style="color:var(--dark)">🎯 แนะนำโปรโมชั่นสัปดาห์ถัดไป</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">กรอกยอดขายจริง 7 วัน และ 5 วัน → ระบบจะแนะนำโปรที่เหมาะสมสำหรับสัปดาห์ถัดไปให้ทุกสาขา</p>
+
+    <div class="month-sel-row" style="margin-bottom:14px">
+      <span style="font-size:12px;font-weight:700;color:var(--muted)">เดือนปัจจุบัน:</span>
+      <select class="sel" id="promoMonth" onchange="renderPromoCards()"></select>
+      <span style="font-size:12px;color:var(--muted)">สัปดาห์ที่:</span>
+      <select class="sel" id="promoWeek" onchange="renderPromoCards()">
+        <option value="1">1</option><option value="2">2</option>
+        <option value="3">3</option><option value="4" selected>4</option>
+      </select>
+    </div>
+
+    <div class="promo-input-grid" id="promoCards"></div>
+
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn btn-primary" onclick="analyzeAll()" style="padding:10px 28px;font-size:13px">วิเคราะห์ทุกสาขา →</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📈 Trend ยอดขายรายสัปดาห์ (Oct 25 – Jan 26)</div>
+    <div class="legend" id="leg-promo"></div>
+    <div class="chart-wrap" style="height:240px"><canvas id="cPromo" role="img" aria-label="Weekly promo trend"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 ประสิทธิภาพโปรโมชั่น — ข้อมูลย้อนหลัง</div>
+    <div class="tbl-wrap">
+      <table class="data-table" id="promoHistTable"></table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════ SETUP ════════════════════════ -->
+<div id="panel-setup" class="panel">
+  <div class="setup-card">
+    <div class="setup-note">
+      <strong>วิธีเชื่อมกับ Google Sheets (real-time data):</strong><br>
+      1. อัปโหลด Excel ไป Google Drive → เปิดด้วย Sheets<br>
+      2. Extensions → Apps Script → วางโค้ด AppScript.gs<br>
+      3. Deploy → Web App → copy URL<br>
+      4. วาง URL ด้านล่าง → บันทึก → กด Refresh<br><br>
+      <strong>ถ้าไม่มี URL:</strong> เว็บจะใช้ข้อมูลที่ฝังไว้ (embedded data จากไฟล์นี้)
+    </div>
+    <div class="form-group">
+      <label>Apps Script Web App URL</label>
+      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/xxxx/exec">
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:10px" onclick="saveAndLoad()">บันทึกและโหลดข้อมูล</button>
+    <div style="margin-top:12px;padding:12px;background:#F8F9FA;border-radius:8px;font-size:12px;color:var(--muted)">
+      <strong>สถานะ:</strong> <span id="setupStatus">-</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════
+const MONTHS = ['Dec 2025','Jan 2026','Feb 2026','Mar 2026','Apr 2026',
+                'May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026',
+                'Oct 2026','Nov 2026','Dec 2026'];
+const MONTHS_SHORT = ['Dec25','Jan26','Feb26','Mar26','Apr26','May26',
+                      'Jun26','Jul26','Aug26','Sep26','Oct26','Nov26','Dec26'];
+const BRANCHES = ['MB Siam','MB Westgate','MB Saraburi','Kim Fashion','ASAP',
+                  'Freak Siam','Frank Siam','Frank Emsphere'];
+const BRANCH_COLORS = ['#1E3A5F','#2E6DA4','#1D9E75','#E8A317','#D85A30','#7F77DD','#D4537E','#888780'];
+const TARGETS = [475000,435000,425000,445000,445000,445000,445000,445000,445000,445000,445000,445000,445000];
+const BRANCH_TARGETS = [
+  [80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000], // MB Siam
+  [35000,35000,35000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000], // MB Westgate
+  [40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000], // MB Saraburi
+  [35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000], // Kim Fashion
+  [75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000], // ASAP
+  [70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000], // Freak Siam
+  [20000,20000,30000,45000,45000,45000,45000,45000,45000,45000,45000,45000,45000], // Frank Siam
+  [60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000], // Frank Emsphere
+];
+// monthly[monthIdx][branchIdx]
+const MONTHLY_SALES = [
+  [74494,40206,17267,20872,43513,67998,38710,55180], // Dec25
+  [54016,32388,11630,23140,45571,54937,32530,54850], // Jan26
+  [48384,19388,12028,29925,61139,42875,42660,61480], // Feb26
+  [66377,24542,13398,18622,59358,40403,40216,48439], // Mar26
+  [24863, 6858, 4041, 8784,22656, 7821,10485,17334], // Apr26 (MTD)
+  [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+];
+
+const PROMO_WEEKS = ['03-09/10','10-16/10','17-23/10','24-30/10','31-6/11',
+                     '7-13/11','14-20/11','21-27/11','28-4/12','5-11/12','12-18/12','19-25/12','26-1/01'];
+const PROMO_TOTALS = [89872,78906,68877,65918,78531,78901,70009,71115,73979,91593,84040,90789,125896];
+const PROMO_HISTORY = [
+  {name:'MB Siam',    data:[14152,14022,12393,12548,10894,16876,16624,16985,11968,11792,11130,16920,30352]},
+  {name:'ASAP',       data:[11345,13974,11506,8160,7191,11817,11633,14931,10512,6221,10880,8800,12432]},
+  {name:'Freak Siam', data:[14571,11898,10530,8964,10638,12132,6957,6645,19132,15432,16028,11510,14708]},
+  {name:'Frank Emsphere',data:[16150,7510,8550,14200,12150,7420,9560,9000,3480,8590,14130,13830,17170]},
+  {name:'MB Westgate',data:[6320,9990,8685,6255,9864,5463,4642,5635,4260,10038,6762,10280,12876]},
+];
+
+const PROMO_OPTIONS = {
+  'MB Siam':         [{name:'Dis 10%',7:13500,5:9600},{name:'2 PC Dis 10%',7:15800,5:11300},{name:'Buy 800 Free Gift',7:18200,5:13000},{name:'2 Dis 10%+Buy 800',7:23500,5:16800}],
+  'MB Westgate':     [{name:'Dis 10%',7:8200,5:5900},{name:'Dis 50.-',7:10200,5:7300},{name:'2 PC Dis 10%',7:9500,5:6800},{name:'2 PC Dis 15%',7:11000,5:7900}],
+  'MB Saraburi':     [{name:'ไม่มีโปร',7:4200,5:3000},{name:'2 PC Dis 10%',7:4800,5:3400},{name:'2 PC Dis 50.-',7:5500,5:3900},{name:'Buy 600 Free Gift',7:6200,5:4400}],
+  'Kim Fashion':     [{name:'Dis 10%',7:5200,5:3700},{name:'Dis 50.-',7:6800,5:4900},{name:'2 PC Dis 10%',7:7200,5:5200},{name:'2 PC+Free Bag',7:8500,5:6100}],
+  'ASAP':            [{name:'Dis 10%',7:11500,5:8200},{name:'2PC Dis 10%',7:13200,5:9400},{name:'Buy 800 Free Gift',7:15800,5:11300},{name:'2 PC+Free Gift',7:17000,5:12100}],
+  'Freak Siam':      [{name:'Dis 10%',7:12000,5:8600},{name:'2 PC Dis 10%',7:15200,5:10900},{name:'Buy 800 Free Gift',7:18500,5:13200},{name:'2 PC+Buy 800',7:22000,5:15700}],
+  'Frank Siam':      [{name:'ไม่มีโปร',7:7800,5:5600},{name:'Dis 10%',7:10200,5:7300},{name:'2 PC Dis 10%',7:12500,5:8900},{name:'Buy 800 Free Bag',7:14000,5:10000}],
+  'Frank Emsphere':  [{name:'ไม่มีโปร',7:12500,5:8900},{name:'Dis 10%',7:14200,5:10100},{name:'Buy 800 Free Bag',7:16800,5:12000},{name:'2 PC Dis 10%',7:17500,5:12500}],
+};
+
+let DATA = null, charts = {}, selectedMonth = 3;
+
+// ═══════════════════════════════════════════════════════════
+//  DATA LOADING
+// ═══════════════════════════════════════════════════════════
+function setStatus(s){ const d=document.getElementById('statusDot'); d.className=''; d.className=s; }
+
+async function loadData(){
+  setStatus('loading');
+  document.getElementById('loadMsg').textContent='กำลังโหลดข้อมูล...';
+  document.getElementById('loader').style.display='flex';
+
+  const url = localStorage.getItem('salesDashUrl')||'';
+
+  if(typeof google!=='undefined'&&google.script){
+    google.script.run.withSuccessHandler(d=>{DATA=JSON.parse(d);done('ok','Google Sheets');})
+      .withFailureHandler(()=>useFallback()).getDashboardData();
+    return;
+  }
+  if(url&&url.includes('script.google.com')){
+    try{const r=await fetch(url+'?action=getDashboardData');
+      if(r.ok){DATA=await r.json();done('ok','Apps Script');return;}}
+    catch(e){}
+  }
+  useFallback();
+}
+
+function useFallback(){
+  DATA={months:MONTHS,branches:BRANCHES,monthly:MONTHLY_SALES,
+    promoWeeks:PROMO_WEEKS,promoTotals:PROMO_TOTALS,promoHistory:PROMO_HISTORY};
+  done('ok','Embedded Data (Apr 2026 ล่าสุด)');
+}
+
+function done(status, src){
+  setStatus(status);
+  document.getElementById('loader').style.display='none';
+  document.getElementById('setupStatus').textContent=`เชื่อมต่อจาก: ${src} · ${new Date().toLocaleTimeString('th-TH')}`;
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════════════
+function renderAll(){
+  renderKPI(); renderOKR(); renderInsights();
+  renderMainChart(); renderPieChart(); renderTrendChart();
+  buildMonthPills(); renderBranchBars(); renderPctChart(); renderBranchTable();
+  buildPromoMonthSel(); renderPromoCards(); renderPromoChart(); renderPromoHistTable();
+}
+
+const fmt = v => new Intl.NumberFormat('th-TH').format(Math.round(v));
+const pctStr = (a,b) => b>0?(a/b*100).toFixed(1)+'%':'—';
+const pctNum = (a,b) => b>0?(a/b*100):0;
+const totalMonth = mi => MONTHLY_SALES[mi].reduce((s,v)=>s+v,0);
+
+// ═══════════════════════════════════════════════════════════
+//  KPI ROW
+// ═══════════════════════════════════════════════════════════
+function renderKPI(){
+  const el=document.getElementById('kpiRow');
+  let html='';
+  MONTHS.forEach((m,mi)=>{
+    const total=totalMonth(mi), tgt=TARGETS[mi];
+    const p=pctNum(total,tgt);
+    const cls=total===0?'neutral':p>=90?'ok':p>=70?'warn':'fail';
+    const badgeCls=total===0?'badge-neu':p>=90?'badge-ok':p>=70?'badge-warn':'badge-fail';
+    const badgeTxt=total===0?'Pending':p>=90?'✓ Pass':p>=70?'⚠ Fair':'✗ Low';
+    html+=`<div class="kpi ${cls}">
+      <div class="kpi-lbl">${m}</div>
+      <div class="kpi-val">${total===0?'—':'฿'+fmt(total)}</div>
+      <div class="kpi-sub">เป้า ฿${fmt(tgt)}</div>
+      <span class="kpi-badge ${badgeCls}">${total===0?'รอข้อมูล':p.toFixed(1)+'% '+badgeTxt}</span>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  OKR BANNER
+// ═══════════════════════════════════════════════════════════
+function renderOKR(){
+  let pills='', fails=0;
+  MONTHS.slice(0,5).forEach((m,mi)=>{
+    const t=totalMonth(mi), tgt=TARGETS[mi];
+    if(t===0)return;
+    const p=pctNum(t,tgt); const ok=p>=90; if(!ok)fails++;
+    pills+=`<span class="okr-pill ${ok?'pass':''}">${m}: ${p.toFixed(1)}% ${ok?'✓':'✗'}</span>`;
+  });
+  document.getElementById('okrPills').innerHTML=pills;
+  document.getElementById('okrSub').textContent=fails>0?`ยังไม่ผ่าน ${fails} เดือน — ต้องทำให้ได้ ≥ 90% ทุกเดือน`:'ผ่านทุกเดือน!';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INSIGHTS
+// ═══════════════════════════════════════════════════════════
+function renderInsights(){
+  const el=document.getElementById('insightGrid');
+  // Find best/worst branch from Jan-Apr
+  const jan_apr=[1,2,3,4];
+  const branchTotals=BRANCHES.map((b,bi)=>jan_apr.map(mi=>MONTHLY_SALES[mi][bi]).reduce((s,v)=>s+v,0));
+  const bestBi=branchTotals.indexOf(Math.max(...branchTotals));
+  const worstBi=branchTotals.indexOf(Math.min(...branchTotals));
+  const janToApr=totalMonth(1)+totalMonth(2)+totalMonth(3)+totalMonth(4);
+  const tgtJanApr=TARGETS.slice(1,5).reduce((s,v)=>s+v,0);
+  const avgPct=(janToApr/tgtJanApr*100).toFixed(1);
+
+  const insights=[
+    {cls:'insight-ok', ico:'🏆', title:`สาขาดีสุด: ${BRANCHES[bestBi]}`, body:`ยอดรวม Jan–Apr ฿${fmt(branchTotals[bestBi])} — Top performer ทุกเดือน`},
+    {cls:'insight-fail',ico:'⚠️', title:`สาขาต้องปรับ: ${BRANCHES[worstBi]}`, body:`ยอดรวม Jan–Apr ฿${fmt(branchTotals[worstBi])} — ต้องการโปรกระตุ้นและ support`},
+    {cls:'insight-warn', ico:'📉', title:`OKR Jan–Apr: ${avgPct}%`, body:`ยอดรวม ฿${fmt(janToApr)} จากเป้า ฿${fmt(tgtJanApr)} — ยังต้องเร่งทุกสาขา`},
+    {cls:'', ico:'💡', title:'โปรที่ดีที่สุด: 2 Dis 10%+Buy 800', body:'MB Siam ทำยอดสูงสุด ฿30,352/wk (วีค 26-1/01) ด้วยโปรนี้'},
+  ];
+  el.innerHTML=insights.map(i=>`<div class="insight ${i.cls}"><div class="insight-ico">${i.ico}</div><div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHARTS — OVERVIEW
+// ═══════════════════════════════════════════════════════════
+function renderMainChart(){
+  if(charts.main)charts.main.destroy();
+  const hasData=MONTHS.map((_,i)=>totalMonth(i)>0);
+  const labels=MONTHS.filter((_,i)=>hasData[i]);
+  const actuals=MONTHLY_SALES.filter((_,i)=>hasData[i]).map(m=>m.reduce((s,v)=>s+v,0));
+  const targets=TARGETS.filter((_,i)=>hasData[i]);
+  document.getElementById('leg-main').innerHTML=`
+    <div class="leg-item"><div class="leg-dot" style="background:#2E6DA4"></div>ยอดจริง</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#CBD5E1"></div>เป้าหมาย</div>`;
+  charts.main=new Chart(document.getElementById('cMain'),{type:'bar',
+    data:{labels,datasets:[
+      {label:'ยอดจริง',data:actuals,backgroundColor:'#2E6DA4',borderRadius:5},
+      {label:'เป้า',data:targets,backgroundColor:'#CBD5E1',borderRadius:5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10}}}}}});
+}
+
+function renderPieChart(){
+  if(charts.pie)charts.pie.destroy();
+  const totals=BRANCHES.map((_,bi)=>[1,2,3,4].map(mi=>MONTHLY_SALES[mi][bi]).reduce((s,v)=>s+v,0));
+  charts.pie=new Chart(document.getElementById('cPie'),{type:'doughnut',
+    data:{labels:BRANCHES,datasets:[{data:totals,backgroundColor:BRANCH_COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{position:'right',labels:{font:{size:10},padding:8,usePointStyle:true}},
+        tooltip:{callbacks:{label:c=>c.label+': ฿'+fmt(c.raw)}}}}});
+}
+
+function renderTrendChart(){
+  if(charts.trend)charts.trend.destroy();
+  const hasData=MONTHS.map((_,i)=>totalMonth(i)>0);
+  const labels=MONTHS.filter((_,i)=>hasData[i]);
+  document.getElementById('leg-trend').innerHTML=BRANCHES.map((b,i)=>
+    `<div class="leg-item"><div class="leg-dot" style="background:${BRANCH_COLORS[i]}"></div>${b}</div>`).join('');
+  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',
+    data:{labels,datasets:BRANCHES.map((b,i)=>({
+      label:b,data:MONTHLY_SALES.filter((_,mi)=>hasData[mi]).map(m=>m[i]),
+      borderColor:BRANCH_COLORS[i],backgroundColor:BRANCH_COLORS[i]+'18',
+      tension:.3,pointRadius:4,borderWidth:2,fill:false,
+      borderDash:i>4?[5,3]:[]
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},
+        x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10}}}}}});
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BRANCHES TAB
+// ═══════════════════════════════════════════════════════════
+function buildMonthPills(){
+  const el=document.getElementById('monthPills');
+  el.innerHTML=MONTHS.map((m,i)=>{
+    const hasD=totalMonth(i)>0;
+    return `<button class="pill ${i===selectedMonth?'active':''} ${!hasD?'disabled':''}" 
+      onclick="selectMonth(${i})" ${!hasD?'title="ยังไม่มีข้อมูล"':''} style="${!hasD?'opacity:.4;cursor:default':''}">${m}</button>`;
+  }).join('');
+}
+
+function selectMonth(mi){
+  if(totalMonth(mi)===0)return;
+  selectedMonth=mi;
+  buildMonthPills();
+  renderBranchBars();
+  renderPctChart();
+}
+
+function renderBranchBars(){
+  const vals=MONTHLY_SALES[selectedMonth];
+  const tgts=BRANCH_TARGETS.map(t=>t[selectedMonth]);
+  const maxV=Math.max(...vals);
+  const prevVals=selectedMonth>0?MONTHLY_SALES[selectedMonth-1]:null;
+  const sorted=BRANCHES.map((b,i)=>({b,i,v:vals[i],tgt:tgts[i]})).sort((a,x)=>x.v-a.v);
+
+  document.getElementById('barTitle').textContent=`ยอดขายรายสาขา — ${MONTHS[selectedMonth]}`;
+  document.getElementById('barRows').innerHTML=sorted.map(({b,i,v,tgt})=>{
+    const p=pctNum(v,tgt);
+    const col=p>=90?'var(--teal)':p>=70?'var(--warn)':'var(--red)';
+    const barW=maxV>0?Math.round(v/maxV*100):0;
+    const prev=prevVals?prevVals[i]:null;
+    const diff=prev!=null?v-prev:0;
+    const trendHtml=prev!=null&&prev>0?`<span class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'}${fmt(Math.abs(diff))}</span>`:'';
+    return `<div class="brow">
+      <div class="brow-name">${b}</div>
+      <div class="brow-track"><div class="brow-fill" style="width:${barW}%;background:${col}">
+        <span>${p.toFixed(0)}%</span></div></div>
+      <div class="brow-val">฿${fmt(v)}</div>
+      <div class="brow-trend">${trendHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPctChart(){
+  if(charts.pct)charts.pct.destroy();
+  const vals=MONTHLY_SALES[selectedMonth];
+  const tgts=BRANCH_TARGETS.map(t=>t[selectedMonth]);
+  const pcts=BRANCHES.map((_,bi)=>pctNum(vals[bi],tgts[bi]));
+  const cols=pcts.map(p=>p>=90?'#1D9E75':p>=70?'#E8A317':'#D85A30');
+  charts.pct=new Chart(document.getElementById('cPct'),{type:'bar',
+    data:{labels:BRANCHES,datasets:[{data:pcts,backgroundColor:cols,borderRadius:5}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+'%'}}},
+      scales:{x:{min:0,max:130,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:11}}}}}});
+}
+
+function renderBranchTable(){
+  const hasData=MONTHS.map((_,i)=>totalMonth(i)>0);
+  const visMonths=MONTHS.map((m,i)=>({m,i})).filter(({i})=>hasData[i]);
+  let html=`<thead><tr><th>สาขา</th>${visMonths.map(({m})=>`<th>${m}</th>`).join('')}<th>รวม (มีข้อมูล)</th><th>% เป้า</th><th>Trend</th></tr></thead><tbody>`;
+  BRANCHES.forEach((b,bi)=>{
+    const vals=visMonths.map(({i})=>MONTHLY_SALES[i][bi]);
+    const total=vals.reduce((s,v)=>s+v,0);
+    const tgtSum=visMonths.map(({i})=>BRANCH_TARGETS[bi][i]).reduce((s,v)=>s+v,0);
+    const p=pctNum(total,tgtSum);
+    const j=vals[1]||0, l=vals[vals.length-1]||vals[0]||0;
+    html+=`<tr><td>${b}</td>${vals.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
+      <td><strong>฿${fmt(total)}</strong></td>
+      <td><span class="tag ${p>=90?'tag-ok':p>=70?'tag-warn':'tag-fail'}">${p.toFixed(1)}%</span></td>
+      <td><span class="${l>j?'up':'dn'}">${l>j?'↑ Up':'↓ Down'}</span></td></tr>`;
+  });
+  const totals=visMonths.map(({i})=>totalMonth(i));
+  const grandTotal=totals.reduce((s,v)=>s+v,0);
+  const grandTgt=visMonths.map(({i})=>TARGETS[i]).reduce((s,v)=>s+v,0);
+  html+=`</tbody><tfoot><tr><td>TOTAL</td>${totals.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
+    <td>฿${fmt(grandTotal)}</td><td>${pctStr(grandTotal,grandTgt)}</td><td></td></tr></tfoot>`;
+  document.getElementById('branchTable').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PROMO TAB
+// ═══════════════════════════════════════════════════════════
+function buildPromoMonthSel(){
+  const sel=document.getElementById('promoMonth');
+  sel.innerHTML=MONTHS.slice(0,5).map((m,i)=>`<option value="${i}" ${i===3?'selected':''}>${m}</option>`).join('');
+}
+
+let promoInputs={};
+
+function renderPromoCards(){
+  const mi=parseInt(document.getElementById('promoMonth').value);
+  const wk=parseInt(document.getElementById('promoWeek').value);
+  const weeklyTgts=[20000,10000,10000,8750,18750,17500,11250,15000];
+
+  document.getElementById('promoCards').innerHTML=BRANCHES.map((b,bi)=>{
+    const opts=PROMO_OPTIONS[b]||[];
+    const optSel=opts.map(o=>`<option value="${o.name}">${o.name} (฿${fmt(o[7])}/wk)</option>`).join('');
+    const prev=promoInputs[b]||{sales7:0,sales5:0,promo:opts[0]?.name||'Dis 10%'};
+    return `<div class="promo-card" id="pc-${bi}">
+      <div class="promo-card-header">
+        <span class="branch-name">${b}</span>
+        <span class="tag tag-neu">WK${wk}</span>
+      </div>
+      <div class="promo-card-body">
+        <div class="promo-form-row">
+          <label>โปรอาทิตย์นี้</label>
+          <select onchange="promoInputs['${b}']={...promoInputs['${b}']||{},promo:this.value};calcPromo(${bi},'${b}')">${optSel}</select>
+        </div>
+        <div class="promo-form-row">
+          <label>ยอดขาย 7 วัน (฿)</label>
+          <input type="number" id="s7-${bi}" value="${prev.sales7}" placeholder="0"
+            oninput="promoInputs['${b}']={...promoInputs['${b}']||{},sales7:+this.value};calcPromo(${bi},'${b}')">
+        </div>
+        <div class="promo-form-row">
+          <label>ยอดขาย 5 วัน (฿)</label>
+          <input type="number" id="s5-${bi}" value="${prev.sales5}" placeholder="0"
+            oninput="promoInputs['${b}']={...promoInputs['${b}']||{},sales5:+this.value};calcPromo(${bi},'${b}')">
+        </div>
+        <div class="promo-result" id="pr-${bi}">
+          <div class="rec-label">⏳ กรอกยอดขายเพื่อดูคำแนะนำ</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcPromo(bi, branch){
+  const s7=parseFloat(document.getElementById(`s7-${bi}`)?.value)||0;
+  const s5=parseFloat(document.getElementById(`s5-${bi}`)?.value)||0;
+  const tgt=BRANCH_TARGETS[bi][3]*0.25; // weekly target
+  const opts=PROMO_OPTIONS[branch]||[];
+  const p7=tgt>0?s7/tgt:0;
+
+  let rec7, rec5, reason, recColor;
+  if(p7>=1.0){
+    rec7=opts[1]||opts[0]; rec5=opts[0];
+    reason='✅ ยอดดีมาก — ลดโปรลงได้ ประหยัดต้นทุน';
+    recColor='#1D9E75';
+  } else if(p7>=0.7){
+    rec7=opts[2]||opts[1]; rec5=opts[1]||opts[0];
+    reason='⚠️ ยอดพอใช้ — เพิ่มโปรอีกระดับเพื่อเพิ่มยอด';
+    recColor='#E8A317';
+  } else {
+    rec7=opts[opts.length-1]; rec5=opts[opts.length-2]||opts[opts.length-1];
+    reason='🔴 ยอดต่ำ — ใช้โปรแรงสุดเพื่อดึงลูกค้า';
+    recColor='#D85A30';
+  }
+
+  const html=`
+    <div class="rec-label" style="color:${recColor}">${reason}</div>
+    <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:#EEF7FF;border-radius:6px;padding:8px">
+        <div style="font-size:10px;color:var(--muted);font-weight:700">แนะนำ 7 วัน</div>
+        <div class="rec-7">${rec7?.name||'—'}</div>
+        <div style="font-size:11px;color:var(--muted)">คาด ฿${fmt(rec7?.[7]||0)}/wk</div>
+      </div>
+      <div style="background:#E8F5E9;border-radius:6px;padding:8px">
+        <div style="font-size:10px;color:var(--muted);font-weight:700">แนะนำ 5 วัน</div>
+        <div class="rec-5">${rec5?.name||'—'}</div>
+        <div style="font-size:11px;color:var(--muted)">คาด ฿${fmt(rec5?.[5]||0)}/5วัน</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--muted)">
+      ยอด 7 วัน: ฿${fmt(s7)} | เป้าสัปดาห์: ฿${fmt(tgt)} | ${(p7*100).toFixed(0)}% vs เป้า
+    </div>`;
+  document.getElementById(`pr-${bi}`).innerHTML=html;
+}
+
+function analyzeAll(){
+  BRANCHES.forEach((_,bi)=>calcPromo(bi,BRANCHES[bi]));
+}
+
+function renderPromoChart(){
+  if(charts.promo)charts.promo.destroy();
+  const cols=['#2E6DA4','#D85A30','#1D9E75','#7F77DD','#E8A317'];
+  document.getElementById('leg-promo').innerHTML=[
+    {n:'รวมทุกสาขา',c:'#2E6DA4'},...PROMO_HISTORY.map((b,i)=>({n:b.name,c:cols[i+1]}))
+  ].map(l=>`<div class="leg-item"><div class="leg-dot" style="background:${l.c}"></div>${l.n}</div>`).join('');
+
+  charts.promo=new Chart(document.getElementById('cPromo'),{type:'line',
+    data:{labels:PROMO_WEEKS,datasets:[
+      {label:'Total',data:PROMO_TOTALS,borderColor:'#2E6DA4',backgroundColor:'#2E6DA418',tension:.3,pointRadius:5,borderWidth:3,fill:true},
+      ...PROMO_HISTORY.map((b,i)=>({label:b.name,data:b.data,borderColor:cols[i+1],tension:.3,pointRadius:3,borderWidth:1.5}))
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},
+        x:{ticks:{autoSkip:true,maxRotation:45,font:{size:10}}}}}});
+}
+
+function renderPromoHistTable(){
+  const levels=[
+    {min:0.85,label:'🔴 โปรแรง',bg:'#FFF0ED',color:'#D85A30',desc:'ดึงลูกค้าสูงสุด','pro':'ยอดขายเพิ่มมาก','con':'กำไรต่อชิ้นลด'},
+    {min:0.5,label:'🟡 โปรกลาง',bg:'#FFFBEB',color:'#E8A317',desc:'สมดุลยอด/กำไร','pro':'สมดุลดี','con':'ต้องติดตาม'},
+    {min:0,label:'🟢 โปรเบา',bg:'#F0FDF4',color:'#1D9E75',desc:'รักษากำไร','pro':'กำไรดี','con':'ยอดโตช้า'},
+  ];
+
+  let html=`<thead><tr><th>สาขา</th><th>โปรโมชั่น</th><th>คาดยอด 7 วัน</th><th>คาดยอด 5 วัน</th><th>ระดับ</th><th>เหมาะกับ</th><th>ข้อดี</th><th>ข้อเสีย</th></tr></thead><tbody>`;
+
+  BRANCHES.forEach(b=>{
+    const opts=PROMO_OPTIONS[b]||[];
+    const maxS=Math.max(...opts.map(o=>o[7]));
+    const minS=Math.min(...opts.map(o=>o[7]));
+    const mid=(maxS+minS)/2;
+    opts.sort((a,x)=>a[7]-x[7]).forEach((o,pi)=>{
+      const lv=o[7]>=maxS*0.9?levels[0]:o[7]>=mid?levels[1]:levels[2];
+      html+=`<tr>
+        <td>${pi===0?`<strong>${b}</strong>`:''}</td>
+        <td>${o.name}</td>
+        <td>฿${fmt(o[7])}</td>
+        <td>฿${fmt(o[5])}</td>
+        <td><span style="background:${lv.bg};color:${lv.color};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">${lv.label}</span></td>
+        <td style="font-size:12px">${lv.desc}</td>
+        <td style="font-size:11px;color:var(--teal)">${lv.pro}</td>
+        <td style="font-size:11px;color:var(--red)">${lv.con}</td>
+      </tr>`;
+    });
+  });
+  html+='</tbody>';
+  document.getElementById('promoHistTable').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TAB & SETUP
+// ═══════════════════════════════════════════════════════════
+function showTab(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  el.classList.add('active');
+}
+
+function saveAndLoad(){
+  const url=document.getElementById('scriptUrl').value.trim();
+  if(url)localStorage.setItem('salesDashUrl',url);
+  loadData();
+}
+
+const saved=localStorage.getItem('salesDashUrl');
+if(saved)document.getElementById('scriptUrl').value=saved;
+loadData();
+</script>
+</body>
+</html>
