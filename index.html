@@ -1,257 +1,208 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Multibrand Sales Dashboard 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Multibrand Promo Planner 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{
-  --ink:#0D1117;--ink2:#374151;--muted:#6B7280;--dim:#9CA3AF;
-  --bg:#F4F6FA;--surface:#FFFFFF;--border:#E5E7EB;--hover:#F9FAFB;
-  --blue:#1D4ED8;--blue-lt:#EFF6FF;--teal:#0F766E;--teal-lt:#F0FDFA;
-  --red:#DC2626;--red-lt:#FEF2F2;--warn:#D97706;--warn-lt:#FFFBEB;
-  --gold:#92400E;--gold-lt:#FEF9C3;
-  --b1:#1E3A5F;--b2:#1D4ED8;--b3:#0F766E;--b4:#92400E;
-  --b5:#7C3AED;--b6:#BE185D;--b7:#065F46;--b8:#374151;
-}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
-code,kbd{font-family:'IBM Plex Mono',monospace}
+:root{
+  --bg:#F4F6FA;--surface:#fff;--border:#E5E7EB;--ink:#0D1117;--ink2:#374151;
+  --muted:#6B7280;--dim:#9CA3AF;--blue:#1D4ED8;--teal:#0F766E;--red:#DC2626;
+  --warn:#D97706;--green:#059669;--navy:#0F172A;
+}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5}
 
-/* ── NAV ── */
-nav{background:var(--ink);position:sticky;top:0;z-index:300;display:flex;align-items:stretch;border-bottom:1px solid #1F2937}
-.n-brand{padding:10px 20px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid #1F2937;flex-shrink:0}
-.n-brand h1{font-size:13px;font-weight:700;color:#F9FAFB;letter-spacing:-.01em}
-.n-brand p{font-size:10px;color:#6B7280;margin-top:1px}
-.n-tabs{display:flex;flex:1;overflow-x:auto}
-.ntab{display:flex;align-items:center;gap:5px;padding:0 16px;font-size:12px;font-weight:600;color:#6B7280;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+nav{background:var(--navy);display:flex;align-items:stretch;position:sticky;top:0;z-index:200;border-bottom:1px solid #1F2937}
+.nb{padding:10px 18px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid #1F2937;flex-shrink:0}
+.nb h1{font-size:13px;font-weight:600;color:#F9FAFB}
+.nb p{font-size:10px;color:#6B7280;margin-top:1px}
+.nt{display:flex;flex:1;overflow-x:auto}
+.ntab{display:flex;align-items:center;gap:5px;padding:0 15px;font-size:12px;font-weight:500;color:#6B7280;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit;transition:all .15s}
 .ntab:hover{color:#E5E7EB;background:#111827}
 .ntab.on{color:#60A5FA;border-bottom-color:#3B82F6}
-.ntab .e{font-size:13px}
-.n-right{display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0;border-left:1px solid #1F2937}
-.dot{width:7px;height:7px;border-radius:50%;background:#374151;flex-shrink:0}
-.dot.ok{background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.2)}
-.dot.spin{background:#F59E0B;animation:pulse .8s infinite}
-.dot.err{background:#EF4444}
-@keyframes pulse{50%{opacity:.3}}
-.btn{padding:5px 12px;border-radius:5px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit}
-.btn-g{background:#10B981;color:#fff}.btn-g:hover{background:#059669}
-.btn-o{background:#1F2937;color:#9CA3AF;border:1px solid #374151}.btn-o:hover{background:#374151;color:#E5E7EB}
+.ndot{width:7px;height:7px;border-radius:50%;background:#374151;flex-shrink:0;margin-left:8px}
+.ndot.ok{background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.2)}
 
-/* ── LAYOUT ── */
-.main{padding:16px 20px;max-width:1440px;margin:0 auto}
+.main{padding:16px 20px;max-width:1400px;margin:0 auto}
 .panel{display:none}.panel.on{display:block}
-.gap{margin-bottom:14px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:var(--surface);border-radius:10px;border:1px solid var(--border);padding:14px 16px;margin-bottom:12px}
+.ct{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:800px){.g2{grid-template-columns:1fr}}
 
-/* ── CARDS ── */
-.card{background:var(--surface);border-radius:10px;border:1px solid var(--border);padding:16px 18px;margin-bottom:14px}
-.card-t{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.card-t .ct-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--blue-lt);color:var(--blue)}
-
-/* ── KPI ── */
-.kpi{background:var(--surface);border-radius:9px;border:1px solid var(--border);padding:12px 14px;position:relative;overflow:hidden}
+/* ── OVERVIEW KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 12px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--blue)}
-.kpi.ok::before{background:#10B981}.kpi.warn::before{background:#F59E0B}
-.kpi.fail::before{background:#EF4444}.kpi.pend::before{background:#9CA3AF}
-.kpi-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.kpi-v{font-size:21px;font-weight:700;color:var(--ink);margin:3px 0;line-height:1}
+.kpi.ok::before{background:#10B981}.kpi.warn::before{background:#F59E0B}.kpi.fail::before{background:#EF4444}.kpi.pend::before{background:#9CA3AF}
+.kpi-l{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.kpi-v{font-size:19px;font-weight:600;color:var(--ink);margin:3px 0;line-height:1;font-family:'IBM Plex Mono',monospace}
 .kpi-s{font-size:10px;color:var(--muted)}
-.kpi-b{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge{display:inline-block;margin-top:4px;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600}
 .b-ok{background:#D1FAE5;color:#065F46}.b-w{background:#FEF3C7;color:#92400E}
 .b-f{background:#FEE2E2;color:#991B1B}.b-p{background:#E0E7FF;color:#3730A3}
 
-/* ── SECTION TITLE ── */
-.sec{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;display:flex;align-items:center;gap:6px}
-.sec::after{content:'';flex:1;height:1px;background:var(--border)}
-
-/* ── BAR ROW ── */
+/* ── BARS ── */
 .bars{display:flex;flex-direction:column;gap:6px}
 .brow{display:flex;align-items:center;gap:8px}
-.bn{width:115px;font-size:11px;font-weight:600;color:var(--b1);flex-shrink:0}
+.bn{width:110px;font-size:11px;font-weight:500;color:var(--navy);flex-shrink:0}
 .btrack{flex:1;height:18px;background:#EEF2F7;border-radius:3px;overflow:hidden}
-.bfill{height:100%;border-radius:3px;transition:width .5s;display:flex;align-items:center;padding-left:5px;min-width:2px}
-.bfill span{font-size:9px;font-weight:700;color:#fff;white-space:nowrap}
-.bnum{width:80px;text-align:right;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
-.bpct{width:36px;text-align:right;font-size:10px;color:var(--muted)}
-.btrd{width:55px;text-align:right;font-size:10px;font-weight:700}
-.up{color:#10B981}.dn{color:#EF4444}.fl{color:var(--dim)}
+.bfill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:5px;min-width:2px;transition:width .4s}
+.bfill span{font-size:9px;font-weight:600;color:#fff;white-space:nowrap}
+.bnum{width:80px;text-align:right;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.btrd{width:55px;text-align:right;font-size:10px;font-weight:600}
+.up{color:#10B981}.dn{color:#EF4444}
 
-/* ── PILL ── */
-.pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
-.pill{padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-weight:600;transition:all .12s;font-family:inherit}
+/* ── PILLS / SELECT ── */
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.pill{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-weight:500;transition:all .12s;font-family:inherit}
 .pill:hover{border-color:var(--blue);color:var(--blue)}
 .pill.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.pill.lock{opacity:.35;cursor:not-allowed}
-select.sel{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);font-family:inherit;color:var(--ink);cursor:pointer}
+.pill.empty{opacity:.4}
+select.sel,input.inp{padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);font-family:inherit;color:var(--ink)}
+input.inp:focus,select.sel:focus{outline:none;border-color:var(--blue)}
+input.inp[type=number]{width:110px;font-family:'IBM Plex Mono',monospace;text-align:right}
+
+/* ── PROMO COMPARE — main feature ── */
+.pc-wrapper{display:flex;flex-direction:column;gap:8px}
+.pc-row{background:var(--surface);border-radius:9px;border:1px solid var(--border);overflow:hidden}
+.pc-top{display:grid;align-items:stretch;border-bottom:1px solid var(--border)}
+.pc-branch-name{padding:10px 12px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border)}
+.pc-bname{font-size:13px;font-weight:600;color:var(--navy)}
+.pc-bsub{font-size:10px;color:var(--muted);margin-top:2px}
+.pc-status{padding:8px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:1px solid var(--border);min-width:76px}
+.pc-opts{display:flex;flex:1}
+.pc-opt{flex:1;padding:9px 10px;cursor:pointer;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px;transition:background .12s;position:relative}
+.pc-opt:last-child{border-right:none}
+.pc-opt:hover{background:#F8FAFC}
+.pc-opt.sel-a{background:#EFF6FF;outline:2px solid #3B82F6;outline-offset:-2px}
+.pc-opt.sel-b{background:#F0FDF4;outline:2px solid #10B981;outline-offset:-2px}
+.pc-opt.sel-c{background:#FFF7ED;outline:2px solid #F59E0B;outline-offset:-2px}
+.pc-opt.sel-d{background:#FDF4FF;outline:2px solid #A855F7;outline-offset:-2px}
+.pc-opt-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:4px}
+.pc-opt-name{font-size:12px;font-weight:600;color:var(--ink)}
+.pc-opt-est{font-size:11px;font-family:'IBM Plex Mono',monospace}
+.pc-opt-badge{font-size:9px;color:var(--muted)}
+.pc-opt-best{font-size:9px;font-weight:700;color:#D97706}
+.pc-approve{padding:8px 10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--dim);transition:all .15s;border-left:1px solid var(--border);min-width:46px}
+.pc-approve:hover{color:var(--green)}.pc-approve.done{color:#10B981;font-size:22px}
+/* custom input opts */
+.pc-opt.custom-opt{background:#FAFAFA}
+.custom-inputs{display:flex;flex-direction:column;gap:3px;margin-top:3px}
+.custom-inputs input{width:100%;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;background:#fff}
+.custom-inputs input:focus{outline:none;border-color:var(--blue)}
+/* confirm strip */
+.confirm-strip{background:#F0FDF4;border:1px solid #6EE7B7;border-radius:8px;padding:10px 14px;margin-top:10px;display:none}
+.confirm-strip.show{display:block}
+.confirm-header{font-size:12px;font-weight:600;color:#065F46;margin-bottom:6px}
+.confirm-items{display:flex;flex-wrap:wrap;gap:6px}
+.confirm-chip{background:#fff;border:1px solid #A7F3D0;border-radius:6px;padding:3px 10px;font-size:11px;color:var(--ink2)}
+
+/* ── HISTORY TABLE ── */
+.htbl{width:100%;border-collapse:collapse;font-size:11px}
+.htbl th{background:var(--navy);color:#E5E7EB;padding:6px 8px;text-align:center;font-size:10px;font-weight:600;position:sticky;top:0;white-space:nowrap}
+.htbl th:first-child,.htbl th:nth-child(2){text-align:left}
+.htbl td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.htbl td:nth-child(2){text-align:left;font-family:inherit;font-weight:500}
+.htbl td:first-child{text-align:center;color:var(--muted)}
+.htbl tr.gold td{background:#FEF9C3}.htbl tr.good td{background:#F0FDF4}.htbl tr.low td{background:#FEF2F2}
+.tw{border-radius:8px;overflow:hidden;border:1px solid var(--border);overflow-x:auto;max-height:480px;overflow-y:auto}
+
+/* ── PROMO BADGE GRID ── */
+.pb-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.pb{border:1px solid var(--border);border-radius:8px;padding:9px 11px;min-width:120px;display:flex;flex-direction:column;gap:2px;position:relative;background:var(--surface)}
+.pb.best{border-color:#F59E0B;border-width:2px;background:#FFFBEB}
+.pb-crown{position:absolute;top:-8px;right:6px;font-size:12px}
+.pb-name{font-size:11px;font-weight:600;color:var(--ink)}
+.pb-avg{font-size:16px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.pb-meta{font-size:9px;color:var(--muted)}
+.pb-lv{font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;display:inline-block;margin-top:2px}
 
 /* ── TABLE ── */
-.tw{border-radius:9px;overflow:hidden;border:1px solid var(--border);overflow-x:auto}
 .t{width:100%;border-collapse:collapse;font-size:12px}
-.t th{background:var(--ink);color:#E5E7EB;padding:8px 10px;font-size:10px;font-weight:700;text-align:center;white-space:nowrap;position:sticky;top:0}
+.t th{background:var(--navy);color:#E5E7EB;padding:7px 10px;font-size:10px;font-weight:600;text-align:center;white-space:nowrap}
 .t th:first-child{text-align:left}
-.t td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap}
-.t td:first-child{text-align:left;font-weight:600;color:var(--b1)}
+.t td{padding:7px 10px;border-bottom:1px solid var(--border);text-align:center}
+.t td:first-child{text-align:left;font-weight:600;color:var(--navy)}
 .t tr:nth-child(even) td{background:#FAFAFA}
-.t tr:hover td{background:#EEF4FF}
-.t tfoot td{background:#EEF2F7;font-weight:800;border-top:2px solid var(--blue)}
-
-/* ── TAG ── */
-.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
-.t-ok{background:#D1FAE5;color:#065F46}.t-w{background:#FEF3C7;color:#92400E}
-.t-f{background:#FEE2E2;color:#991B1B}.t-n{background:#E0E7FF;color:#3730A3}
-
-/* ── CHART ── */
+.t tfoot td{background:#EEF2F7;font-weight:700;border-top:2px solid var(--blue)}
+.tag{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600}
+.t-ok{background:#D1FAE5;color:#065F46}.t-w{background:#FEF3C7;color:#92400E}.t-f{background:#FEE2E2;color:#991B1B}
 .cw{position:relative;width:100%}
-.leg{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
-.li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
-.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-
-/* ── PROMO COMPARE ── */
-.pc-grid{display:flex;flex-direction:column;gap:10px}
-.pc-branch{background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden}
-.pc-head{display:grid;grid-template-columns:200px 80px 1fr 1fr 1fr 60px;align-items:center;gap:0;min-height:52px}
-.pc-head>*{padding:10px 12px;border-right:1px solid var(--border);height:100%;display:flex;align-items:center}
-.pc-head>*:last-child{border-right:none}
-.pc-name{font-weight:700;font-size:13px;color:var(--ink);flex-direction:column;align-items:flex-start;gap:2px}
-.pc-status{justify-content:center;font-size:12px;font-weight:700;flex-direction:column;gap:2px;text-align:center}
-.pc-opt{flex-direction:column;gap:3px;cursor:pointer;transition:background .15s}
-.pc-opt:hover{background:#F0F9FF}
-.pc-opt.selected{background:#EFF6FF;outline:2px solid var(--blue);outline-offset:-2px}
-.pc-opt.sel-b{background:#F0FDF4;outline:2px solid #10B981;outline-offset:-2px}
-.pc-opt.sel-c{background:#FEF9C3;outline:2px solid #F59E0B;outline-offset:-2px}
-.opt-lv{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
-.opt-name{font-size:12px;font-weight:700;color:var(--ink)}
-.opt-info{display:flex;gap:8px;font-size:10px}
-.opt-est{font-weight:700;font-family:'IBM Plex Mono',monospace}
-.opt-best{font-size:9px;color:var(--muted)}
-.pc-approve{justify-content:center;cursor:pointer;font-size:20px;color:var(--dim);user-select:none;transition:all .15s}
-.pc-approve:hover{color:var(--teal)}
-.pc-approve.ticked{color:#10B981;font-size:24px}
-@media(max-width:900px){.pc-head{grid-template-columns:1fr;border-right:none}.pc-head>*{border-right:none;border-bottom:1px solid var(--border)}.pc-head>*:last-child{border-bottom:none}}
-
-/* ── PROMO BADGES ── */
-.pb-grid{display:flex;flex-wrap:wrap;gap:8px}
-.pb{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:130px;display:flex;flex-direction:column;gap:2px;position:relative}
-.pb.best{border-color:#F59E0B;border-width:2px;background:#FFFBEB}
-.pb .crown{position:absolute;top:-8px;right:6px;font-size:14px}
-.pb-n{font-size:11px;font-weight:700;color:var(--ink)}
-.pb-avg{font-size:17px;font-weight:800;font-family:'IBM Plex Mono',monospace}
-.pb-meta{font-size:9px;color:var(--muted)}
-.pb-lv{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;display:inline-block;margin-top:2px;width:fit-content}
 
 /* ── OKR BANNER ── */
-.okr{background:linear-gradient(135deg,#FEF2F2,#FFF7ED);border:1px solid #FECACA;border-radius:9px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.okr-t{font-weight:800;color:#991B1B;font-size:13px}
-.okr-s{font-size:11px;color:#B45309;margin-top:1px}
-.okr-pills{display:flex;flex-wrap:wrap;gap:4px}
-.op{background:#fff;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;border:1px solid #FECACA;color:#991B1B}
+.okr{background:linear-gradient(135deg,#FEF2F2,#FFF7ED);border:1px solid #FECACA;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.okr-ps{display:flex;flex-wrap:wrap;gap:4px}
+.op{background:#fff;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:600;border:1px solid #FECACA;color:#991B1B}
 .op.pass{border-color:#6EE7B7;color:#065F46}
 
-/* ── INSIGHT ── */
-.ins-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:14px}
-.ins{background:var(--surface);border-radius:9px;border-left:3px solid var(--blue);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:12px 14px}
-.ins.ok{border-left-color:#10B981}.ins.warn{border-left-color:#F59E0B}.ins.fail{border-left-color:#EF4444}
-.ins-e{font-size:18px;margin-bottom:4px}
-.ins-t{font-size:12px;font-weight:700}
-.ins-b{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
-
-/* ── LOADER ── */
-.loader{position:fixed;inset:0;background:rgba(13,17,23,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px}
-.spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#60A5FA;border-radius:50%;animation:ro .7s linear infinite}
+/* ── loader ── */
+.loader{position:fixed;inset:0;background:rgba(13,17,23,.9);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px}
+.spin{width:32px;height:32px;border:3px solid rgba(255,255,255,.15);border-top-color:#60A5FA;border-radius:50%;animation:ro .7s linear infinite}
 @keyframes ro{to{transform:rotate(360deg)}}
-.loader p{color:#6B7280;font-size:12px}
-
-/* ── SETUP ── */
-.set-c{max-width:500px;background:var(--surface);border-radius:10px;padding:22px;border:1px solid var(--border)}
-.set-n{background:#EFF6FF;border-left:3px solid var(--blue);border-radius:0 6px 6px 0;padding:12px;font-size:11px;color:#1E40AF;line-height:1.7;margin-bottom:14px}
-.fg{margin-bottom:12px}
-.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
-.fg input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
-.fg input:focus{outline:none;border-color:var(--blue)}
-
-/* ── WEEKLY HISTORY TABLE ── */
-.wh-branch-title{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:7px;margin-bottom:7px;margin-top:14px;color:#fff;font-weight:700;font-size:12px}
-.wh-t{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px}
-.wh-t th{background:#0F172A;color:#9CA3AF;padding:6px 8px;font-size:9px;font-weight:700;text-align:center;border:1px solid #1F2937;white-space:nowrap}
-.wh-t th:first-child{text-align:left}
-.wh-t td{padding:6px 8px;border:1px solid var(--border);text-align:right;white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:11px}
-.wh-t td:nth-child(2){text-align:left;font-family:inherit;font-weight:600}
-.wh-t tr.gold td{background:#FEF9C3}
-.wh-t tr.good td{background:#F0FDF4}
-.wh-t tr.low td{background:#FEF2F2}
+.loader p{color:#6B7280;font-size:11px}
 </style>
 </head>
 <body>
-
-<div class="loader" id="loader">
-  <div class="spin"></div>
-  <p id="lmsg">กำลังโหลดข้อมูล...</p>
-</div>
+<div class="loader" id="loader"><div class="spin"></div><p id="lmsg">กำลังโหลด...</p></div>
 
 <nav>
-  <div class="n-brand"><h1>Multibrand Dashboard</h1><p>ยอดขาย 2026 · 8 สาขา · Jan–Dec</p></div>
-  <div class="n-tabs">
-    <button class="ntab on" onclick="show('overview',this)"><span class="e">📊</span>ภาพรวม</button>
-    <button class="ntab" onclick="show('branches',this)"><span class="e">🏪</span>รายสาขา</button>
-    <button class="ntab" onclick="show('promo',this)"><span class="e">🎯</span>เปรียบโปร</button>
-    <button class="ntab" onclick="show('history',this)"><span class="e">📅</span>ประวัติโปร</button>
-    <button class="ntab" onclick="show('setup',this)"><span class="e">⚙</span>ตั้งค่า</button>
+  <div class="nb"><h1>Multibrand Dashboard 2026</h1><p>Jan–Dec · 10 สาขา</p></div>
+  <div class="nt">
+    <button class="ntab on" onclick="show('overview',this)">📊 ภาพรวม</button>
+    <button class="ntab" onclick="show('branches',this)">🏪 รายสาขา</button>
+    <button class="ntab" onclick="show('promo',this)">🎯 เปรียบโปร</button>
+    <button class="ntab" onclick="show('history',this)">📅 ประวัติโปร</button>
   </div>
-  <div class="n-right">
-    <div class="dot" id="dot"></div>
-    <button class="btn btn-o" onclick="loadData()">↻ Refresh</button>
-  </div>
+  <div class="ndot ok" id="dot" style="margin:auto 12px"></div>
 </nav>
 
 <div class="main">
 
-<!-- ══════════ OVERVIEW ══════════ -->
+<!-- ═══ OVERVIEW ═══ -->
 <div id="p-overview" class="panel on">
-  <div class="g4" id="kpiGrid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))"></div>
-  <div id="okrBanner" class="okr">
-    <div><div class="okr-t">⚠ OKR — เป้าหมาย ≥ 90% ทุกเดือน</div><div class="okr-s" id="okrS"></div></div>
-    <div class="okr-pills" id="okrP"></div>
+  <div id="kpiGrid" class="kpi-grid"></div>
+  <div class="okr" id="okrBanner">
+    <div><div style="font-size:12px;font-weight:700;color:#991B1B">⚠ OKR — เป้าหมาย ≥ 90% ทุกเดือน</div>
+    <div style="font-size:10px;color:#B45309;margin-top:1px" id="okrS"></div></div>
+    <div class="okr-ps" id="okrP"></div>
   </div>
-  <div class="ins-g" id="insG"></div>
   <div class="g2">
-    <div class="card"><div class="card-t">ยอดขาย vs เป้ารายเดือน <span class="ct-badge">Jan–Apr 2026</span></div>
-      <div class="leg" id="lMain"></div>
-      <div class="cw" style="height:220px"><canvas id="cMain" role="img" aria-label="monthly sales vs target"></canvas></div></div>
-    <div class="card"><div class="card-t">สัดส่วนยอดขายแต่ละสาขา <span class="ct-badge">Jan–Apr 2026</span></div>
-      <div class="cw" style="height:220px"><canvas id="cPie" role="img" aria-label="branch share pie"></canvas></div></div>
+    <div class="card"><div class="ct">ยอดขายจริง vs เป้ารายเดือน</div>
+      <div class="cw" style="height:210px"><canvas id="cMain"></canvas></div></div>
+    <div class="card"><div class="ct">สัดส่วนยอดขายแต่ละสาขา (Jan–Apr 2026)</div>
+      <div class="cw" style="height:210px"><canvas id="cPie"></canvas></div></div>
   </div>
-  <div class="card"><div class="card-t">Trend ยอดขายรายสาขา — Jan 2026 ถึง Dec 2026</div>
-    <div class="leg" id="lTrend"></div>
-    <div class="cw" style="height:240px"><canvas id="cTrend" role="img" aria-label="branch trend line"></canvas></div></div>
+  <div class="card"><div class="ct">Trend ยอดขายรายสาขา — Jan 2026 ถึง Dec 2026</div>
+    <div id="trendLeg" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+    <div class="cw" style="height:220px"><canvas id="cTrend"></canvas></div></div>
 </div>
 
-<!-- ══════════ BRANCHES ══════════ -->
+<!-- ═══ BRANCHES ═══ -->
 <div id="p-branches" class="panel">
-  <div class="pills" id="monthPills"></div>
+  <div class="pills" id="moPills"></div>
   <div class="g2" style="align-items:start">
-    <div class="card"><div class="card-t" id="barT">ยอดขายรายสาขา</div>
-      <div class="bars" id="barRows"></div></div>
-    <div class="card"><div class="card-t">% vs เป้า รายสาขา</div>
-      <div class="cw" style="height:260px"><canvas id="cPct" role="img" aria-label="pct chart"></canvas></div></div>
+    <div class="card"><div class="ct" id="barT">ยอดขายรายสาขา</div><div class="bars" id="barRows"></div></div>
+    <div class="card"><div class="ct">% vs เป้า</div>
+      <div class="cw" style="height:250px"><canvas id="cPct"></canvas></div></div>
   </div>
-  <div class="card"><div class="card-t">ตารางยอดขายรายสาขา × ทุกเดือน</div>
+  <div class="card"><div class="ct">ตารางยอดขาย × ทุกเดือน</div>
     <div class="tw"><table class="t" id="brT"></table></div></div>
 </div>
 
-<!-- ══════════ PROMO COMPARE ══════════ -->
+<!-- ═══ PROMO COMPARE ═══ -->
 <div id="p-promo" class="panel">
   <div class="card" style="background:linear-gradient(135deg,#F0F9FF,#F0FDF4);border-color:#BAE6FD">
-    <div class="card-t" style="color:var(--b1)">🎯 เปรียบโปรโมชั่น A / B / C — คลิกเลือก → อนุมัติ ✅</div>
-    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">ข้อมูลจากจริง 27 สัปดาห์ · 🏆 = Best Promo ที่เคย Succeed · คลิก Option ที่ต้องการ → ติ๊กช่องอนุมัติ → Print/Screenshot ส่งหัวหน้า</p>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-      <span style="font-size:11px;font-weight:700;color:var(--muted)">เดือน:</span>
-      <select class="sel" id="promoMonth" onchange="renderPromoCompare()">
+    <h2 class="sr-only">Promo comparison tool for weekly approval meeting</h2>
+    <div class="ct" style="color:var(--navy);font-size:14px">🎯 เปรียบโปรโมชั่น — คลิกเลือก → ติ๊กอนุมัติ ✅</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:10px">ข้อมูลจริง 28 สัปดาห์ · 🏆 = Best จากข้อมูลจริง · ✏ D/E = โปรใหม่ (กรอกเอง) · คลิก Option ที่ต้องการ → ✅ อนุมัติ</p>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:600;color:var(--muted)">เดือน:</span>
+      <select class="sel" id="promoMo" onchange="buildCompare()">
         <option value="0">Jan 2026</option><option value="1">Feb 2026</option>
         <option value="2">Mar 2026</option><option value="3" selected>Apr 2026</option>
         <option value="4">May 2026</option><option value="5">Jun 2026</option>
@@ -259,154 +210,118 @@ select.sel{padding:5px 10px;border:1px solid var(--border);border-radius:6px;fon
         <option value="8">Sep 2026</option><option value="9">Oct 2026</option>
         <option value="10">Nov 2026</option><option value="11">Dec 2026</option>
       </select>
-      <span style="font-size:11px;font-weight:700;color:var(--muted)">สัปดาห์ที่:</span>
-      <select class="sel" id="promoWk">
-        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
-      </select>
-      <button class="btn btn-g" onclick="clearAll()">ล้างการเลือก</button>
-      <button class="btn btn-o" onclick="printView()">🖨 Print / Export</button>
+      <span style="font-size:11px;font-weight:600;color:var(--muted)">สัปดาห์:</span>
+      <select class="sel" id="promoWk"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option></select>
+      <button style="padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:11px;font-family:inherit" onclick="clearApprove()">ล้างการเลือก</button>
+      <button style="padding:5px 12px;border-radius:6px;border:none;background:#1D4ED8;color:#fff;cursor:pointer;font-size:11px;font-family:inherit" onclick="window.print()">🖨 Print/Export</button>
     </div>
-    <div class="pc-grid" id="pcGrid"></div>
-    <div id="approvedSummary" style="margin-top:12px;display:none">
-      <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:12px 16px">
-        <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:6px">✅ โปรที่อนุมัติแล้ว</div>
-        <div id="approvedList" style="font-size:11px;color:var(--ink2);line-height:2"></div>
-      </div>
+
+    <div class="pc-wrapper" id="pcGrid"></div>
+
+    <div class="confirm-strip" id="confirmStrip">
+      <div class="confirm-header">✅ โปรที่อนุมัติแล้ว — สัปดาห์ที่ <span id="cfWk"></span></div>
+      <div class="confirm-items" id="cfItems"></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-t">📊 ประสิทธิภาพโปรแต่ละแบบ — ข้อมูลจริง 27 สัปดาห์</div>
-    <div class="pills" id="histBrPills"></div>
-    <div id="histContent"></div>
+    <div class="ct">📊 ประสิทธิภาพโปรแต่ละแบบ — ข้อมูลจริง 28 สัปดาห์</div>
+    <div class="pills" id="histPills"></div>
+    <div id="histBadges"></div>
   </div>
 </div>
 
-<!-- ══════════ HISTORY ══════════ -->
+<!-- ═══ HISTORY ═══ -->
 <div id="p-history" class="panel">
   <div class="card">
-    <div class="card-t">📅 ประวัติโปรโมชั่น × ยอดขาย 27 สัปดาห์ (Oct 2025 – Apr 2026)</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-      <span style="font-size:11px;font-weight:700;color:var(--muted)">ดูสาขา:</span>
-      <select class="sel" id="histBrSel" onchange="renderHistTable()">
-        <option value="-1">รวมทุกสาขา (Trend)</option>
-        <option value="0">MB Siam</option><option value="1">MB Westgate</option>
-        <option value="2">MB Saraburi</option><option value="3">Kim Fashion</option>
-        <option value="4">ASAP</option><option value="5">Freak Siam</option>
-        <option value="6">Frank Siam</option><option value="7">Frank Emsphere</option>
+    <div class="ct">📅 ประวัติโปร × ยอดขายรายสัปดาห์ (Oct 2025 – Apr 2026)</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:600;color:var(--muted)">สาขา:</span>
+      <select class="sel" id="histSel" onchange="renderHistory()">
+        <option value="-1">รวมทุกสาขา</option>
       </select>
     </div>
-    <div class="leg" id="lHist"></div>
-    <div class="cw" style="height:250px;margin-bottom:14px"><canvas id="cHist" role="img" aria-label="history trend"></canvas></div>
-    <div id="histTableWrap"></div>
+    <div id="histLeg" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+    <div class="cw" style="height:230px;margin-bottom:12px"><canvas id="cHist"></canvas></div>
+    <div class="tw" id="histTblWrap"></div>
   </div>
 </div>
 
-<!-- ══════════ SETUP ══════════ -->
-<div id="p-setup" class="panel">
-  <div class="set-c">
-    <div class="set-n">
-      <strong>เชื่อม Google Sheets เพื่อดึงยอดขายอัตโนมัติ:</strong><br>
-      1. อัปโหลด Excel ไป Google Drive → เปิดด้วย Google Sheets<br>
-      2. Extensions → Apps Script → วางโค้ด AppScript.gs ที่ได้มา<br>
-      3. Deploy → New deployment → Web App → Anyone<br>
-      4. Copy URL → วางด้านล่าง → บันทึก<br><br>
-      <strong>ยอดขายจะอัปเดตอัตโนมัติ</strong> ทุกครั้งที่กด Refresh
-    </div>
-    <div class="fg"><label>Apps Script Web App URL</label>
-      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/xxxx/exec"></div>
-    <button class="btn btn-g" style="width:100%;padding:9px;font-size:12px" onclick="saveLoad()">บันทึกและโหลดข้อมูล</button>
-    <div style="margin-top:10px;padding:10px;background:#F9FAFB;border-radius:6px;font-size:11px;color:var(--muted)">
-      สถานะ: <span id="setSt">—</span></div>
-  </div>
-</div>
-
-</div>
+</div><!-- /main -->
 
 <script>
-// ═══════════════════════════════════════════════
-//  CONSTANTS
-// ═══════════════════════════════════════════════
-const MONTHS=['Jan 2026','Feb 2026','Mar 2026','Apr 2026','May 2026','Jun 2026',
-              'Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
-const BR=['MB Siam','MB Westgate','MB Saraburi','Kim Fashion','ASAP','Freak Siam','Frank Siam','Frank Emsphere'];
-const BC=['#1E3A5F','#1D4ED8','#0F766E','#92400E','#7C3AED','#BE185D','#065F46','#374151'];
+const MONTHS=['Jan 2026','Feb 2026','Mar 2026','Apr 2026','May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
 const TGTS=[435000,425000,445000,445000,445000,445000,445000,445000,445000,445000,445000,445000];
-const BTGT=[[80,35,40,35,75,70,20,60],[80,35,40,35,75,70,30,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60],[80,40,40,35,75,70,45,60]].map(r=>r.map(v=>v*1000));
 
-const MON=[[54016,32388,11630,23140,45571,54937,32530,54850],[48384,19388,12028,29925,61139,42875,42660,61480],[66377,24542,13398,18622,59358,40403,40216,48439],[24863,6858,4041,8784,22656,7821,10485,17334],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+const BR=['MB Siam','MB Westgate','MB Saraburi','SOS Fashion Island','Kim Fashion','ASAP','MB Seacon','Freak Siam','Frank Siam','Frank Emsphere'];
+const BC=['#1E3A5F','#1D4ED8','#0F766E','#7C3AED','#92400E','#BE185D','#374151','#065F46','#B45309','#0E7490'];
+const BTGT=[[80,35,40,25,35,75,10,70,20,60],[80,35,40,25,35,75,10,70,30,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60],[80,40,40,25,35,75,10,70,45,60]].map(r=>r.map(v=>v*1000));
 
-const WEEKS=['03-09/10','10-16/10','17-23/10','24-30/10','31-6/11','7-13/11','14-20/11','21-27/11','28-4/12','5-11/12','12-18/12','19-25/12','26-1/01','2-8/01','9-15/01','16-20/01','23-29/01','30-05/02','06-12/02','13-19/02','20-26/02','27-05/03','06-12/03','13-19/03','20-26/03','27-02/04','3-9/04'];
-const WM=['Oct','Oct','Oct','Oct','Nov','Nov','Nov','Nov','Dec','Dec','Dec','Dec','Jan','Jan','Jan','Jan','Jan','Feb','Feb','Feb','Feb','Mar','Mar','Mar','Mar','Apr','Apr'];
+// Monthly sales [monthIdx][branchIdx] — same BR order
+const MON=[[54016,32388,11630,0,23140,45571,0,54937,32530,54850],[48384,19388,12028,0,29925,61139,0,42875,42660,61480],[66377,24542,13398,0,18622,59358,0,40403,40216,48439],[24863,6858,4041,0,8784,22656,0,7821,10485,17334],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]];
 
-const PD={'MB Siam':[['2 PC Dis 10%',14152],['Dis 10%',14022],['Dis 10%',12393],['2 PC Dis 10%',12548],['2 PC Dis 10%',10894],['2 PC Dis 10%',16876],['2 PC Dis 10%',16624],['2 PC Dis 10%',16985],['2 PC Dis 10%',11968],['2 PC Dis 10%',11792],['Buy 800 Free Gift',11130],['2 Dis+Buy 800',16920],['2 Dis+Buy 800',30352],['2 Dis+Buy 800',12838],['2 PC Dis 10%',7810],['2 PC Dis 10%',8000],['2 PC Dis 10%',15916],['2 PC Dis 10%',11744],['2 PC Dis 10%',10935],['Dis 10%',13167],['Dis 10%',11227],['Dis 10%',17514],['Dis 10%',9544],['Dis 10%',18771],['Dis 10%',16389],['Dis 10%',15103],['Dis 10%',15409]],
-'MB Westgate':[['2 PC Dis 10%',6320],['Dis 10%',9990],['Dis 10%',8685],['Dis 10%',6255],['Dis 10%',9864],['Dis 10%',5463],['2 PC Dis 10%',4642],['2 PC Dis 10%',5635],['2 PC Dis 10%',4260],['2 PC Dis 10%',10038],['2 PC Dis 10%',6762],['2 PC Dis 10%',10280],['2 PC Dis 10%',12876],['2 PC Dis 10%',8900],['2 PC Dis 10%',7088],['2 PC Dis 10%',2560],['Dis 50.-',7760],['Dis 50.-',5340],['Dis 50.-',3470],['Dis 10%',5391],['Dis 10%',6264],['Dis 10%',9720],['Dis 10%',4266],['Dis 10%',4392],['2 PC Dis 10%',2870],['Dis 10%',8775],['Dis 10%',3168]],
-'MB Saraburi':[['ไม่มีโปร',11810],['ไม่มีโปร',4860],['ไม่มีโปร',3750],['2 PC Dis 10%',4340],['2 PC Dis 10%',4390],['2 PC Dis 10%',3868],['2 PC Dis 50.-',5650],['2 PC Dis 50.-',4080],['2 PC Dis 50.-',4360],['2 PC Dis 50.-',5510],['2 PC Dis 50.-',2370],['Dis 10%',5301],['Dis 10%',5716],['Dis 10%',3350],['2 PC Dis 50.-',1530],['2 PC Dis 50.-',1470],['2 PC Dis 50.-',1770],['2 PC Dis 50.-',2220],['Dis 10%',2569],['Dis 10%',2781],['Dis 10%',3726],['Dis 10%',4882],['Dis 10%',2979],['Dis 10%',1377],['Dis 10%',2358],['Dis 10%',3674],['Dis 10%',2979]],
-'Kim Fashion':[['Dis 10%',6493],['Dis 10%',7065],['Dis 10%',4878],['Dis 10%',4719],['Dis 10%',5753],['Dis 10%',4609],['Dis 10%',3987],['Dis 10%',2439],['Dis 50.-',1523],['Dis 50.-',6392],['Dis 50.-',5056],['Dis 10%',1909],['Dis 50.-',7832],['Dis 50.-',3682],['Dis 50.-',1607],['Dis 50.-',6131],['Dis 50.-',8542],['Dis 50.-',5439],['Dis 50.-',9093],['Dis 50.-',9402],['Dis 50.-',6178],['Dis 50.-',8056],['2 PC Dis 10%',5193],['2 PC Dis 10%',2515],['2 PC Dis 10%',4318],['2 PC Dis 10%',3215],['Dis 10%',5892]],
-'ASAP':[['Dis 10%',11345],['Dis 10%',13974],['Dis 10%',11506],['Dis 10%',8160],['Dis 10%',7191],['Dis 10%',11817],['Dis 10%',11633],['Dis 10%',14931],['2 PC Dis 10%',10512],['Dis 10%',6221],['Buy 800 Free Gift',10880],['2 Dis+Buy 800',8800],['2 Dis+Buy 800',12432],['2 Dis+Buy 800',13020],['2 Dis+Buy 800',8060],['2 Dis+Buy 800',7582],['2 Dis+Buy 800',12147],['2 Dis+Buy 800',8790],['2 PC Dis 10%',8732],['Dis 10%',19313],['Dis 10%',19126],['Dis 10%',14481],['2PC Dis 10%',16445],['2PC Dis 10%',14554],['2PC Dis 10%',14232],['2PC Dis 10%',10440],['Dis 10%',13491]],
-'Freak Siam':[['Dis 10%',14571],['Dis 10%',11898],['Dis 10%',10530],['Dis 10%',8964],['Dis 10%',10638],['Dis 10%',12132],['Dis 10%',6957],['Dis 10%',6645],['2 PC Dis 10%',19132],['2 PC Dis 10%',15432],['2 PC Dis 10%',16028],['2 PC Dis 10%',11510],['2 PC Dis 10%',14708],['2 PC Dis 10%',12493],['2 PC Dis 10%',10900],['2 PC Dis 10%',14558],['2 PC Dis 10%',10774],['2 PC Dis 10%',9662],['2 PC Dis 10%',9930],['2 PC Dis 10%',11584],['2 PC Dis 10%',14310],['2 PC Dis 10%',10311],['Dis 10%',6507],['Dis 10%',9225],['2 PC Dis 10%',10462],['Dis 10%',7992],['Dis 10%',5778]],
-'Frank Siam':[[null,0],[null,0],[null,0],[null,0],['ไม่มีโปร',9820],['ไม่มีโปร',10430],['Dis 10%',6174],['Dis 10%',4086],['ไม่มีโปร',8380],['ไม่มีโปร',10980],['ไม่มีโปร',6100],['ไม่มีโปร',9190],['Buy 800 Free Bag',10550],['Buy 800 Free Bag',9820],['Buy 800 Free Bag',5060],['Buy 800 Free Bag',5670],['Buy 800 Free Bag',8270],['Buy 800 Free Bag',6010],['Buy 800 Free Bag',7190],['Buy 800 Free Bag',12920],['ไม่มีโปร',12270],['ไม่มีโปร',13390],['ไม่มีโปร',13210],['ไม่มีโปร',9010],['ไม่มีโปร',4780],['Dis 10%',7812],['Dis 10%',8523]],
-'Frank Emsphere':[['ไม่มีโปร',16150],['ไม่มีโปร',7510],['ไม่มีโปร',8550],['ไม่มีโปร',14200],['ไม่มีโปร',12150],['ไม่มีโปร',7420],['ไม่มีโปร',9560],['ไม่มีโปร',9000],['ไม่มีโปร',3480],['ไม่มีโปร',8590],['ไม่มีโปร',14130],['ไม่มีโปร',13830],['Buy 800 Free Bag',17170],['Buy 800 Free Bag',12560],['Buy 800 Free Bag',12920],['Buy 800 Free Bag',9000],['Buy 800 Free Bag',11110],['Buy 800 Free Bag',16590],['Buy 800 Free Bag',15180],['Buy 800 Free Bag',17450],['ไม่มีโปร',13500],['ไม่มีโปร',6690],['Dis 10%',10791],['Dis 10%',11952],['Dis 10%',12627],['Dis 10%',12849],['Dis 10%',11016]]};
+// WEEKS — cleaned (remove 'remark', deduplicate 2-8/01)
+const WEEKS=['03-09/10','10-16/10','17-23/10','24-30/10','31-6/11','7-13/11','14-20/11','21-27/11','28-4/12','5-11/12','12-18/12','19-25/12','26-1/01','9-15/01','16-20/01','23-29/01','30-05/02','06-12/02','13-19/02','20-26/02','27-05/03','06-12/03','13-19/03','20-26/03','27-02/04','3-9/04'];
+const WM=['Oct','Oct','Oct','Oct','Nov','Nov','Nov','Nov','Dec','Dec','Dec','Dec','Jan','Jan','Jan','Jan','Feb','Feb','Feb','Feb','Mar','Mar','Mar','Mar','Apr','Apr'];
 
-// Promo options A/B/C per branch (with real-data best highlighted)
-const OPTS={'MB Siam':{A:['Dis 10%',28000],B:['2 PC Dis 10%',34000],C:['2 Dis+Buy 800 Gift',42000]},'MB Westgate':{A:['Dis 10%',18000],B:['2 PC Dis 10%',22000],C:['Dis 50.-',27000]},'MB Saraburi':{A:['Dis 10%',12000],B:['2 PC Dis 10%',16000],C:['2 PC Dis 50.-',21000]},'Kim Fashion':{A:['Dis 10%',17000],B:['Dis 50.-',22000],C:['2 PC Dis 10% + Free Bag',28000]},'ASAP':{A:['Dis 10%',38000],B:['2PC Dis 10%',48000],C:['Buy 800 Free Gift',58000]},'Freak Siam':{A:['Dis 10%',22000],B:['2 PC Dis 10%',32000],C:['2 PC Dis 10% + Gift',42000]},'Frank Siam':{A:['ไม่มีโปร',24000],B:['Dis 10%',30000],C:['Buy 800 Free Bag',37000]},'Frank Emsphere':{A:['Dis 10%',32000],B:['Buy 800 Free Bag',42000],C:['2 PC Dis 10% + Gift',50000]}};
+// Full promo data [branch][weekIdx] = [promoName, sales]
+const PD={
+'MB Siam':[['2 PC Dis 10%',14152],['Dis 10%',14022],['Dis 10%',12393],['2 PC Dis 10%',12548],['2 PC Dis 10%',10894],['2 PC Dis 10%',16876],['2 PC Dis 10%',16624],['2 PC Dis 10%',16985],['2 PC Dis 10%',11968],['2 PC Dis 10%',11792],['Buy 800 Free Gift',11130],['2 Dis 10%+Buy 800',16920],['2 Dis 10%+Buy 800',30352],['2 Dis 10%+Buy 800',12838],['2 PC Dis 10%',7810],['2 PC Dis 10%',8000],['2 PC Dis 10%',15916],['2 PC Dis 10%',10935],['Dis 10%',13167],['Dis 10%',11227],['Dis 10%',17514],['Dis 10%',9544],['Dis 10%',18771],['Dis 10%',16389],['Dis 10%',15103],['Dis 10%',15409]],
+'MB Westgate':[['2 PC Dis 10%',6320],['Dis 10%',9990],['Dis 10%',8685],['Dis 10%',6255],['Dis 10%',9864],['Dis 10%',5463],['2 PC Dis 10%',4642],['2 PC Dis 10%',5635],['2 PC Dis 10%',4260],['2 PC Dis 10%',10038],['2 PC Dis 10%',6762],['2 PC Dis 10%',10280],['2 PC Dis 10%',12876],['2 PC Dis 10%',8900],['2 PC Dis 10%',7088],['2 PC Dis 10%',2560],['Dis 50.-',7760],['Dis 50.-',3470],['Dis 10%',5391],['Dis 10%',6264],['Dis 10%',9720],['Dis 10%',4266],['Dis 10%',4392],['2PC Dis 10%',2870],['Dis 10%',8775],['Dis 10%',3168]],
+'MB Saraburi':[['ไม่มีโปร',11810],['ไม่มีโปร',4860],['ไม่มีโปร',3750],['2 PC Dis 10%',4340],['2 PC Dis 10%',4390],['2 PC Dis 10%',3868],['2 PC Dis 50.-',5650],['2 PC Dis 50.-',4080],['2 PC Dis 50.-',4360],['2 PC Dis 50.-',5510],['2 PC Dis 50.-',2370],['Dis 10%',5301],['Dis 10%',5716],['Dis 10%',3350],['2 PC Dis 50.-',1530],['2 PC Dis 50.-',1470],['2 PC Dis 50.-',1770],['Dis 10%',2569],['Dis 10%',2781],['Dis 10%',3726],['Dis 10%',4882],['Dis 10%',2979],['Dis 10%',1377],['Dis 10%',2358],['Dis 10%',3674],['Dis 10%',2979]],
+'SOS Fashion Island':[['2 PC Dis 50.-',7870],['2 PC Dis 50.-',7760],['2 PC Dis 50.-',7460],['2 PC Dis 50.-',6120],['2 PC Dis 50.-',6670],['2 PC Dis 50.-',5440],['2 PC Dis 10%',3882],['2 PC Dis 10%',6009],['2 PC Dis 10%',10364],['2 PC Dis 10%',14068],['2 PC Dis 10%',9404],['2 PC Dis 10%',11744],['2 PC Dis 10%',11117],['2 PC Dis 10%',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0]],
+'Kim Fashion':[['Dis 10%',6493],['Dis 10%',7065],['Dis 10%',4878],['Dis 10%',4719],['Dis 10%',5753],['Dis 10%',4609],['Dis 10%',3987],['Dis 10%',2439],['Dis 50.-',1523],['Dis 50.-',6392],['Dis 50.-',5056],['Dis 10%',1909],['Dis 50.-',7832],['Dis 50.-',3682],['Dis 50.-',1607],['Dis 50.-',6131],['Dis 50.-',8542],['Dis 50.-',9093],['Dis 50.-',9402],['Dis 50.-',6178],['Dis 50.-',8056],['2PC Dis 10%',5193],['2PC Dis 10%',2515],['2PC Dis 10%',4318],['2PC Dis 10%',3215],['Dis 10%',5892]],
+'ASAP':[['Dis 10%',11345],['Dis 10%',13974],['Dis 10%',11506],['Dis 10%',8160],['Dis 10%',7191],['Dis 10%',11817],['Dis 10%',11633],['Dis 10%',14931],['2 PC Dis 10%',10512],['Dis 10%',6221],['Buy 800 Free Gift',10880],['2 Dis 10%+Buy 800',8800],['2 Dis 10%+Buy 800',12432],['2 Dis 10%+Buy 800',13020],['2 Dis 10%+Buy 800',8060],['2 Dis 10%+Buy 800',7582],['2 Dis 10%+Buy 800',12147],['2 PC Dis 10%',8732],['Dis 10%',19313],['Dis 10%',19126],['Dis 10%',14481],['2PC Dis 10%',16445],['2PC Dis 10%',14554],['2PC Dis 10%',14232],['2PC Dis 10%',10440],['Dis 10%',13491]],
+'MB Seacon':[['Dis 10%',1161],['Dis 10%',1827],['Dis 10%',1125],['Dis 10%',612],['Dis 10%',1161],['Dis 10%',846],['Dis 10%',900],['Dis 10%',1305],['2 PC Dis 10%',0],['ไม่มีโปร',2570],['ไม่มีโปร',2180],['Dis 10%',1305],['Dis 10%',3143],['Dis 10%',940],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0],['',0]],
+'Freak Siam':[['Dis 10%',14571],['Dis 10%',11898],['Dis 10%',10530],['Dis 10%',8964],['Dis 10%',10638],['Dis 10%',12132],['Dis 10%',6957],['Dis 10%',6645],['2 PC Dis 10%',19132],['2 PC Dis 10%',15432],['2 PC Dis 10%',16028],['2 PC Dis 10%',11510],['2 PC Dis 10%',14708],['2 PC Dis 10%',12493],['2 PC Dis 10%',10900],['2 PC Dis 10%',14558],['2 PC Dis 10%',10774],['2 PC Dis 10%',9930],['2 PC Dis 10%',11584],['2 PC Dis 10%',14310],['2 PC Dis 10%',10311],['Dis 10%',6507],['Dis 10%',9225],['2PC Dis 10%',10462],['Dis 10%',7992],['Dis 10%',5778]],
+'Frank Siam':[['renovate',0],['renovate',0],['renovate',0],['renovate',0],['ไม่มีโปร',9820],['ไม่มีโปร',10430],['Dis 10%',6174],['Dis 10%',4086],['ไม่มีโปร',8380],['ไม่มีโปร',10980],['ไม่มีโปร',6100],['ไม่มีโปร',9190],['Buy 800 Free Bag',10550],['Buy 800 Free Bag',9820],['Buy 800 Free Bag',5060],['Buy 800 Free Bag',5670],['Buy 800 Free Bag',8270],['Buy 800 Free Bag',7190],['Buy 800 Free Bag',12920],['ไม่มีโปร',12270],['ไม่มีโปร',13390],['ไม่มีโปร',13210],['ไม่มีโปร',9010],['ไม่มีโปร',4780],['Dis 10%',7812],['Dis 10%',8523]],
+'Frank Emsphere':[['ไม่มีโปร',16150],['ไม่มีโปร',7510],['ไม่มีโปร',8550],['ไม่มีโปร',14200],['ไม่มีโปร',12150],['ไม่มีโปร',7420],['ไม่มีโปร',9560],['ไม่มีโปร',9000],['ไม่มีโปร',3480],['ไม่มีโปร',8590],['ไม่มีโปร',14130],['ไม่มีโปร',13830],['Buy 800 Free Bag',17170],['Buy 800 Free Bag',12560],['Buy 800 Free Bag',12920],['Buy 800 Free Bag',9000],['Buy 800 Free Bag',11110],['Buy 800 Free Bag',15180],['Buy 800 Free Bag',17450],['ไม่มีโปร',13500],['ไม่มีโปร',6690],['Dis 10%',10791],['Dis 10%',11952],['Dis 10%',12627],['Dis 10%',12849],['Dis 10%',11016]],
+};
 
-const OPTLV={A:{label:'Option A',color:'#1D4ED8',bg:'#EFF6FF',cls:'selected',lv:'🟢 โปรอ่อน'},B:{label:'Option B',color:'#10B981',bg:'#F0FDF4',cls:'sel-b',lv:'🟡 โปรกลาง'},C:{label:'Option C',color:'#D97706',bg:'#FFFBEB',cls:'sel-c',lv:'🔴 โปรแรง'}};
-
-// ═══════════════════════════════════════════════
-//  COMPUTED
-// ═══════════════════════════════════════════════
-function brStats(b){
+// ─── compute stats ───
+function bstats(b){
   const s={};
-  PD[b].forEach(([p,v])=>{if(!p||v===0)return;if(!s[p]){s[p]={n:0,tot:0,vals:[]};}s[p].n++;s[p].tot+=v;s[p].vals.push(v);});
+  (PD[b]||[]).forEach(([p,v])=>{if(!p||v===0||p==='renovate')return;if(!s[p])s[p]={n:0,tot:0,vals:[]};s[p].n++;s[p].tot+=v;s[p].vals.push(v);});
   return Object.fromEntries(Object.entries(s).map(([k,v])=>[k,{...v,avg:Math.round(v.tot/v.n),max:Math.max(...v.vals),min:Math.min(...v.vals)}]));
 }
-const ST={};BR.forEach(b=>ST[b]=brStats(b));
-const BAVG={};BR.forEach(b=>{const vs=PD[b].filter(([,v])=>v>0).map(([,v])=>v);BAVG[b]=vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):0;});
-function bestP(b){return Object.entries(ST[b]).sort((a,x)=>x[1].avg-a[1].avg)[0]||[null,{}];}
+const ST={};BR.forEach(b=>ST[b]=bstats(b));
+const BAVG={};BR.forEach(b=>{const vs=(PD[b]||[]).filter(([,v])=>v>0).map(([,v])=>v);BAVG[b]=vs.length?Math.round(vs.reduce((a,c)=>a+c,0)/vs.length):0;});
+function best1(b){return Object.entries(ST[b]).sort((a,x)=>x[1].avg-a[1].avg)[0]||['',[]];}
 
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
-let charts={},selMo=3,approved={},histBr=0;
+// ─── promo options A/B/C + D/E custom ───
+const OPTS={
+  'MB Siam':{A:['Dis 10%',14354],B:['2 PC Dis 10%',12788],C:['2 Dis 10%+Buy 800 Free Gift',20037]},
+  'MB Westgate':{A:['Dis 10%',6853],B:['2 PC Dis 10%',7215],C:['Dis 50.-',5523]},
+  'MB Saraburi':{A:['2 PC Dis 10%',4199],B:['Dis 10%',3036],C:['2 PC Dis 50.-',3218]},
+  'SOS Fashion Island':{A:['2 PC Dis 50.-',6890],B:['2 PC Dis 10%',8584],C:['Dis 10%',4000]},
+  'Kim Fashion':{A:['Dis 10%',4774],B:['Dis 50.-',6072],C:['2PC Dis 10%',3810]},
+  'ASAP':{A:['Dis 10%',12553],B:['2PC Dis 10%',13918],C:['2 Dis 10%+Buy 800 Free Gift',10119]},
+  'MB Seacon':{A:['Dis 10%',1243],B:['ไม่มีโปร',2018],C:['2 PC Dis 10%',900]},
+  'Freak Siam':{A:['Dis 10%',9320],B:['2 PC Dis 10%',12952],C:['2 PC Dis 10%+Gift',14000]},
+  'Frank Siam':{A:['ไม่มีโปร',9778],B:['Buy 800 Free Bag',8186],C:['Dis 10%',6649]},
+  'Frank Emsphere':{A:['ไม่มีโปร',10340],B:['Buy 800 Free Bag',13998],C:['Dis 10%',11847]},
+};
+
+// ─── State ───
+let charts={},selMo=3,approved={},selHistBr=0;
 const fmt=v=>new Intl.NumberFormat('th-TH').format(Math.round(v));
 const pn=(a,b)=>b>0?a/b*100:0;
 const totM=i=>MON[i].reduce((s,v)=>s+v,0);
-function setDot(s){document.getElementById('dot').className='dot '+s;}
+const customD={};BR.forEach(b=>{customD[b]={Dname:'',Dest:0,Ename:'',Eest:0};});
 
-// ═══════════════════════════════════════════════
-//  LOAD
-// ═══════════════════════════════════════════════
-async function loadData(){
-  setDot('spin');document.getElementById('lmsg').textContent='กำลังโหลด...';
-  document.getElementById('loader').style.display='flex';
-  const url=localStorage.getItem('mbUrl')||'';
-  if(typeof google!=='undefined'&&google.script){
-    google.script.run.withSuccessHandler(d=>{merge(JSON.parse(d));go('ok','Sheets');}).withFailureHandler(()=>go('ok','Embedded')).getDashboardData();return;
-  }
-  if(url&&url.includes('script.google.com')){
-    try{const r=await fetch(url+'?action=getDashboardData');if(r.ok){const d=await r.json();merge(d);go('ok','Apps Script');return;}}catch(e){}
-  }
-  go('ok','Embedded (Jan–Apr 2026)');
-}
-function merge(d){if(d?.monthly)d.monthly.forEach((row,i)=>{if(i<MON.length)MON[i]=row;});}
-function go(st,src){
-  setDot(st);document.getElementById('loader').style.display='none';
-  document.getElementById('setSt').textContent=`${src} · ${new Date().toLocaleTimeString('th-TH')}`;
+// ─── Init ───
+function init(){
+  document.getElementById('loader').style.display='none';
   renderAll();
 }
-
-// ═══════════════════════════════════════════════
-//  RENDER ALL
-// ═══════════════════════════════════════════════
 function renderAll(){
-  renderKPI();renderOKR();renderInsights();
-  renderMainChart();renderPieChart();renderTrendChart();
-  buildMonthPills();renderBars();renderPctChart();renderBranchTable();
-  renderPromoCompare();buildHistPills();renderHistContent(0);renderHistTable();
+  renderKPI();renderOKR();renderMainChart();renderPieChart();renderTrendChart();
+  buildMoPills();renderBars();renderPctChart();renderBranchTable();
+  buildCompare();buildHistPills();renderHistBadges(0);renderHistory();
+  buildHistSel();
 }
 
-// ── KPI ──
+// ─── KPI ───
 function renderKPI(){
   document.getElementById('kpiGrid').innerHTML=MONTHS.map((m,i)=>{
     const t=totM(i),tg=TGTS[i],p=pn(t,tg);
@@ -415,321 +330,312 @@ function renderKPI(){
     return `<div class="kpi ${cls}"><div class="kpi-l">${m}</div>
       <div class="kpi-v">${t?'฿'+fmt(t):'—'}</div>
       <div class="kpi-s">เป้า ฿${fmt(tg)}</div>
-      <span class="kpi-b ${bc}">${t?p.toFixed(1)+'%'+(p>=90?' ✓':p>=70?' ⚠':' ✗'):'รอข้อมูล'}</span></div>`;
+      <span class="badge ${bc}">${t?p.toFixed(1)+'%'+(p>=90?' ✓':p>=70?' ⚠':' ✗'):'รอข้อมูล'}</span></div>`;
   }).join('');
 }
 
-// ── OKR ──
+// ─── OKR ───
 function renderOKR(){
   let pills='',fails=0;
   MONTHS.slice(0,4).forEach((m,i)=>{
-    const t=totM(i),tg=TGTS[i];if(!t)return;
-    const p=pn(t,tg),ok=p>=90;if(!ok)fails++;
+    const t=totM(i);if(!t)return;
+    const p=pn(t,TGTS[i]),ok=p>=90;if(!ok)fails++;
     pills+=`<span class="op ${ok?'pass':''}">${m}: ${p.toFixed(1)}% ${ok?'✓':'✗'}</span>`;
   });
   document.getElementById('okrP').innerHTML=pills;
-  document.getElementById('okrS').textContent=fails?`ยังไม่ผ่าน ${fails} เดือน — เป้า ≥ 90%`:'ผ่านทุกเดือน!';
+  document.getElementById('okrS').textContent=fails?`ยังไม่ผ่าน ${fails} เดือน`:'ผ่านทุกเดือน!';
 }
 
-// ── INSIGHTS ──
-function renderInsights(){
-  const bTots=BR.map((_,i)=>[0,1,2,3].map(mi=>MON[mi][i]).reduce((s,v)=>s+v,0));
-  const best=bTots.indexOf(Math.max(...bTots));
-  const worst=bTots.indexOf(Math.min(...bTots));
-  // growth: compare Jan vs Apr
-  const grew=BR.filter((_,i)=>MON[3][i]<MON[0][i]).length;
-  const ins=[
-    {cls:'ok',e:'🏆',t:`Top สาขา: ${BR[best]}`,b:`ยอดรวม Jan–Apr ฿${fmt(bTots[best])} — Consistent ทุกเดือน`},
-    {cls:'fail',e:'⚠️',t:`ต้องเร่ง: ${BR[worst]}`,b:`ยอดรวม Jan–Apr ฿${fmt(bTots[worst])} — ต้องโปรแรงและ support`},
-    {cls:'warn',e:'📉',t:`${grew} สาขา ยอดลดจาก Jan`,b:'MB Westgate, MB Saraburi, Freak Siam — Apr ต่ำกว่า Jan'},
-    {cls:'',e:'💡',t:'Best Promo: 2 Dis+Buy 800',b:'MB Siam avg ฿20,037/wk ทำสูงสุด ฿30,352 (วีค 26-1/01)'},
-  ];
-  document.getElementById('insG').innerHTML=ins.map(i=>`<div class="ins ${i.cls}"><div class="ins-e">${i.e}</div><div class="ins-t">${i.t}</div><div class="ins-b">${i.b}</div></div>`).join('');
-}
-
-// ── CHARTS ──
+// ─── Charts ───
 function renderMainChart(){
   if(charts.main)charts.main.destroy();
   const has=MONTHS.map((_,i)=>totM(i)>0);
-  const lbs=MONTHS.filter((_,i)=>has[i]);
-  const acts=MON.filter((_,i)=>has[i]).map(m=>m.reduce((s,v)=>s+v,0));
-  const tgs=TGTS.filter((_,i)=>has[i]);
-  document.getElementById('lMain').innerHTML=`<div class="li"><div class="ld" style="background:#1D4ED8"></div>ยอดจริง</div><div class="li"><div class="ld" style="background:#CBD5E1"></div>เป้าหมาย</div>`;
-  charts.main=new Chart(document.getElementById('cMain'),{type:'bar',data:{labels:lbs,datasets:[{label:'ยอดจริง',data:acts,backgroundColor:'#1D4ED8',borderRadius:4},{label:'เป้า',data:tgs,backgroundColor:'#CBD5E1',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:false}}}}});
+  charts.main=new Chart(document.getElementById('cMain'),{type:'bar',data:{labels:MONTHS.filter((_,i)=>has[i]),datasets:[{label:'ยอดจริง',data:MON.filter((_,i)=>has[i]).map(m=>m.reduce((s,v)=>s+v,0)),backgroundColor:'#1D4ED8',borderRadius:4},{label:'เป้า',data:TGTS.filter((_,i)=>has[i]),backgroundColor:'#D1D5DB',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:false,font:{size:9}}}}}});
 }
-
 function renderPieChart(){
   if(charts.pie)charts.pie.destroy();
   const tots=BR.map((_,bi)=>[0,1,2,3].map(i=>MON[i][bi]).reduce((s,v)=>s+v,0));
-  charts.pie=new Chart(document.getElementById('cPie'),{type:'doughnut',data:{labels:BR,datasets:[{data:tots,backgroundColor:BC,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:9},padding:6,usePointStyle:true}},tooltip:{callbacks:{label:c=>c.label+': ฿'+fmt(c.raw)}}}}});
+  charts.pie=new Chart(document.getElementById('cPie'),{type:'doughnut',data:{labels:BR,datasets:[{data:tots,backgroundColor:BC,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:9},padding:5,usePointStyle:true}},tooltip:{callbacks:{label:c=>c.label+': ฿'+fmt(c.raw)}}}}});
 }
-
 function renderTrendChart(){
   if(charts.trend)charts.trend.destroy();
   const has=MONTHS.map((_,i)=>totM(i)>0);
   const lbs=MONTHS.filter((_,i)=>has[i]);
-  document.getElementById('lTrend').innerHTML=BR.map((b,i)=>`<div class="li"><div class="ld" style="background:${BC[i]}"></div>${b}</div>`).join('');
-  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:lbs,datasets:BR.map((b,i)=>({label:b,data:MON.filter((_,mi)=>has[mi]).map(m=>m[i]),borderColor:BC[i],backgroundColor:BC[i]+'18',tension:.3,pointRadius:4,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:9}}}}}});
+  document.getElementById('trendLeg').innerHTML=BR.map((b,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:${BC[i]};flex-shrink:0"></span>${b}</span>`).join('');
+  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:lbs,datasets:BR.map((b,i)=>({label:b,data:MON.filter((_,mi)=>has[mi]).map(m=>m[i]),borderColor:BC[i],backgroundColor:BC[i]+'18',tension:.3,pointRadius:3,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:false,font:{size:9}}}}}});
 }
 
-// ── BRANCHES ──
-function buildMonthPills(){
-  document.getElementById('monthPills').innerHTML=MONTHS.map((m,i)=>{
+// ─── Branches tab ───
+function buildMoPills(){
+  document.getElementById('moPills').innerHTML=MONTHS.map((m,i)=>{
     const has=totM(i)>0;
-    return `<button class="pill ${i===selMo?'on':''} ${!has?'lock':''}" onclick="selMonth(${i})">${m}${!has?' (รอข้อมูล)':''}</button>`;
+    return `<button class="pill ${i===selMo?'on':''} ${!has?'empty':''}" onclick="pickMo(${i})">${m}${!has?' (รอ)':''}</button>`;
   }).join('');
 }
-function selMonth(i){
-  selMo=i;
-  buildMonthPills();
-  renderBars();
-  renderPctChart();
-}
-
+function pickMo(i){selMo=i;buildMoPills();renderBars();renderPctChart();}
 function renderBars(){
-  const vals=MON[selMo],tgts=BTGT[selMo];
-  const maxV=Math.max(...vals,1);
+  const vals=MON[selMo],tgts=BTGT[selMo],maxV=Math.max(...vals,1);
   const prev=selMo>0?MON[selMo-1]:null;
   const sorted=BR.map((b,i)=>({b,i,v:vals[i],t:tgts[i]})).sort((a,x)=>x.v-a.v);
   document.getElementById('barT').textContent=`ยอดขายรายสาขา — ${MONTHS[selMo]}`;
-  if(vals.every(v=>v===0)){
-    document.getElementById('barRows').innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px">⏳ ยังไม่มีข้อมูลยอดขายสำหรับ ${MONTHS[selMo]}</div>`;
-    return;
-  }
+  if(vals.every(v=>v===0)){document.getElementById('barRows').innerHTML=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">⏳ ยังไม่มีข้อมูล ${MONTHS[selMo]}</div>`;return;}
   document.getElementById('barRows').innerHTML=sorted.map(({b,i,v,t})=>{
-    const p=pn(v,t);
-    const col=p>=90?'#10B981':p>=70?'#F59E0B':'#EF4444';
-    const bw=maxV?Math.round(v/maxV*100):0;
-    const prv=prev?prev[i]:null;
-    const diff=prv!=null?v-prv:0;
-    const trd=prv&&prv>0?`<span class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'}${fmt(Math.abs(diff))}</span>`:'';
+    const p=pn(v,t),col=p>=90?'#10B981':p>=70?'#F59E0B':'#EF4444';
+    const bw=Math.round(v/maxV*100);
+    const diff=prev?v-prev[i]:0;
+    const trd=prev&&prev[i]>0?`<span class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'}${fmt(Math.abs(diff))}</span>`:'';
     return `<div class="brow"><div class="bn">${b}</div><div class="btrack"><div class="bfill" style="width:${bw}%;background:${col}"><span>${p.toFixed(0)}%</span></div></div><div class="bnum">฿${fmt(v)}</div><div class="btrd">${trd}</div></div>`;
   }).join('');
 }
-
 function renderPctChart(){
   if(charts.pct)charts.pct.destroy();
   const vals=MON[selMo],tgts=BTGT[selMo];
   const pcts=BR.map((_,i)=>pn(vals[i],tgts[i]));
-  const cols=pcts.map(p=>p>=90?'#10B981':p>=70?'#F59E0B':'#EF4444');
-  charts.pct=new Chart(document.getElementById('cPct'),{
-    type:'bar',
-    data:{labels:BR,datasets:[{data:pcts,backgroundColor:cols,borderRadius:4}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+'%'}},
-        title:{display:vals.every(v=>v===0),text:'ยังไม่มีข้อมูล — '+MONTHS[selMo],color:'#9CA3AF',font:{size:13}}},
-      scales:{x:{min:0,max:130,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},
-        y:{ticks:{font:{size:10}}}}}});
+  charts.pct=new Chart(document.getElementById('cPct'),{type:'bar',data:{labels:BR,datasets:[{data:pcts,backgroundColor:pcts.map(p=>p>=90?'#10B981':p>=70?'#F59E0B':'#EF4444'),borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+'%'}},title:{display:vals.every(v=>v===0),text:'ยังไม่มีข้อมูล '+MONTHS[selMo],color:var_muted,font:{size:12}}},scales:{x:{min:0,max:130,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{font:{size:10}}}}}});
 }
-
+const var_muted='#9CA3AF';
 function renderBranchTable(){
   const has=MONTHS.map((_,i)=>totM(i)>0);
   const vis=MONTHS.map((m,i)=>({m,i})).filter(x=>has[x.i]);
-  let h=`<thead><tr><th>สาขา</th>${vis.map(x=>`<th>${x.m}</th>`).join('')}<th>รวม</th><th>%เป้า</th><th>Trend</th></tr></thead><tbody>`;
+  let h=`<thead><tr><th>สาขา</th>${vis.map(x=>`<th>${x.m}</th>`).join('')}<th>รวม</th><th>%เป้า</th></tr></thead><tbody>`;
   BR.forEach((b,bi)=>{
     const vs=vis.map(x=>MON[x.i][bi]);
     const tot=vs.reduce((s,v)=>s+v,0);
     const tgt=vis.map(x=>BTGT[x.i][bi]).reduce((s,v)=>s+v,0);
     const p=pn(tot,tgt);
-    const j=vs[0]||0,l=vs[vs.length-1]||0;
-    h+=`<tr><td>${b}</td>${vs.map(v=>`<td>฿${fmt(v)}</td>`).join('')}<td><strong>฿${fmt(tot)}</strong></td><td><span class="tag ${p>=90?'t-ok':p>=70?'t-w':'t-f'}">${p.toFixed(1)}%</span></td><td class="${l>j?'up':'dn'}">${l>j?'↑ Up':'↓ Down'}</td></tr>`;
+    h+=`<tr><td>${b}</td>${vs.map(v=>`<td>฿${fmt(v)}</td>`).join('')}<td><strong>฿${fmt(tot)}</strong></td><td><span class="tag ${p>=90?'t-ok':p>=70?'t-w':'t-f'}">${p.toFixed(1)}%</span></td></tr>`;
   });
   const tots=vis.map(x=>totM(x.i));
   const gT=tots.reduce((s,v)=>s+v,0),gTg=vis.map(x=>TGTS[x.i]).reduce((s,v)=>s+v,0);
-  h+=`</tbody><tfoot><tr><td>TOTAL</td>${tots.map(v=>`<td>฿${fmt(v)}</td>`).join('')}<td>฿${fmt(gT)}</td><td>${pn(gT,gTg).toFixed(1)}%</td><td></td></tr></tfoot>`;
+  h+=`</tbody><tfoot><tr><td>TOTAL</td>${tots.map(v=>`<td>฿${fmt(v)}</td>`).join('')}<td>฿${fmt(gT)}</td><td>${pn(gT,gTg).toFixed(1)}%</td></tr></tfoot>`;
   document.getElementById('brT').innerHTML=h;
 }
 
-// ── PROMO COMPARE ──
-function renderPromoCompare(){
-  const mi=parseInt(document.getElementById('promoMonth').value);
+// ══════════════════════════════════════════
+//  PROMO COMPARE — core feature
+// ══════════════════════════════════════════
+const OPTMETA={
+  A:{label:'Option A',tag:'🟢 โปรอ่อน',tagColor:'#059669',bg:'#EFF6FF',selCls:'sel-a'},
+  B:{label:'Option B',tag:'🟡 โปรกลาง',tagColor:'#D97706',bg:'#F0FDF4',selCls:'sel-b'},
+  C:{label:'Option C',tag:'🔴 โปรแรง',tagColor:'#DC2626',bg:'#FFF7ED',selCls:'sel-c'},
+  D:{label:'✏ โปรใหม่ D',tag:'🟣 กำหนดเอง',tagColor:'#7C3AED',bg:'#FDF4FF',selCls:'sel-d'},
+  E:{label:'✏ โปรใหม่ E',tag:'🟣 กำหนดเอง',tagColor:'#7C3AED',bg:'#FDF4FF',selCls:'sel-d'},
+};
+
+function buildCompare(){
+  const mi=parseInt(document.getElementById('promoMo').value);
   document.getElementById('pcGrid').innerHTML=BR.map((b,bi)=>{
-    const opts=OPTS[b];
-    const [bpName,bpSt]=bestP(b);
+    const opts=OPTS[b]||{};
+    const [bpName,bpSt]=best1(b);
     const actual=MON[mi][bi];
     const tgt=BTGT[mi][bi];
     const pct=pn(actual,tgt);
-    const statusTxt=pct>=60?'🟢 ตามเป้า':pct>=30?'🟡 ต่ำกว่าเป้า':'🔴 วิกฤต';
-    const statusCol=pct>=60?'#065F46':pct>=30?'#92400E':'#991B1B';
-    const statusBg=pct>=60?'#F0FDF4':pct>=30?'#FFFBEB':'#FEF2F2';
-    const approved_key=`${mi}-${bi}`;
-    const isApproved=approved[approved_key];
-    
-    const optHtml=['A','B','C'].map(lv=>{
-      const {label,color,bg,cls,lv:lvtxt}=OPTLV[lv];
-      const [pname,pest]=opts[lv];
-      const isBestReal=(pname===bpName||pname.includes(bpName?.split(' ')[0]||''));
-      return `<div class="pc-opt ${isBestReal?'':'no-best'}" id="opt-${bi}-${lv}" onclick="selectOpt(${bi},'${lv}')" style="border-left:3px solid ${color}">
-        <div class="opt-lv" style="color:${color}">${lvtxt} ${label}</div>
-        <div class="opt-name">${pname}</div>
-        <div class="opt-info">
-          <span class="opt-est" style="color:${color}">฿${fmt(pest)}</span>
-          ${isBestReal?'<span class="opt-best">🏆 Best จากข้อมูลจริง</span>':''}
-        </div>
-        ${bpSt?.avg?`<div style="font-size:9px;color:#94A3B8">avg จริง ฿${fmt(bpSt.avg)}/wk</div>`:''}
+    const statusColor=pct>=60?'#059669':pct>=30?'#D97706':'#DC2626';
+    const statusBg=pct>=60?'#ECFDF5':pct>=30?'#FFFBEB':'#FEF2F2';
+    const statusLabel=pct>=60?'ตามเป้า':pct>=30?'ต่ำกว่าเป้า':'วิกฤต';
+    const apKey=`${mi}-${bi}`;
+    const isApproved=!!approved[apKey];
+
+    // Build option cols
+    const optHTML=['A','B','C','D','E'].map(lv=>{
+      const meta=OPTMETA[lv];
+      const isCustom=lv==='D'||lv==='E';
+      const [pname,pest]=isCustom?[customD[b][`${lv}name`]||'',customD[b][`${lv}est`]||0]:(opts[lv]||['',0]);
+      const isBest=pname&&pname===bpName;
+      const selCls=approved[apKey]===lv?meta.selCls:'';
+
+      if(isCustom){
+        return `<div class="pc-opt custom-opt ${selCls}" id="opt-${bi}-${lv}" onclick="selectOpt(${bi},'${lv}')">
+          <div class="pc-opt-tag" style="color:${meta.tagColor}">${meta.tag}</div>
+          <div class="custom-inputs" onclick="event.stopPropagation()">
+            <input class="inp" placeholder="ชื่อโปร..." value="${customD[b][lv+'name']||''}" oninput="customD['${b}']['${lv}name']=this.value;refreshOpt(${bi},'${lv}')">
+            <input class="inp" type="number" placeholder="คาดยอด ฿" value="${customD[b][lv+'est']||''}" oninput="customD['${b}']['${lv}est']=+this.value;refreshOpt(${bi},'${lv}')">
+          </div>
+          <div class="pc-opt-est" style="color:${meta.tagColor}">${pest?'฿'+fmt(pest):''}</div>
+        </div>`;
+      }
+      return `<div class="pc-opt ${selCls}" id="opt-${bi}-${lv}" onclick="selectOpt(${bi},'${lv}')">
+        <div class="pc-opt-tag" style="color:${meta.tagColor}">${meta.tag}</div>
+        <div class="pc-opt-name">${pname||'—'}</div>
+        <div class="pc-opt-est" style="color:${meta.tagColor}">${pest?'฿'+fmt(pest):''}</div>
+        ${isBest?`<div class="pc-opt-best">🏆 Best จากข้อมูลจริง (avg ฿${fmt(bpSt.avg)})</div>`:''}
+        ${pname&&ST[b][pname]?`<div class="pc-opt-badge">avg จริง ฿${fmt(ST[b][pname].avg)} · max ฿${fmt(ST[b][pname].max)}</div>`:''}
       </div>`;
     }).join('');
-    
-    return `<div class="pc-branch">
-      <div class="pc-head">
-        <div class="pc-name" style="background:${statusBg};border-left:3px solid ${statusCol}">
-          <span style="font-weight:800;color:${BC[bi]}">${b}</span>
-          <span style="font-size:10px;color:var(--muted)">ยอดปัจจุบัน ฿${fmt(actual)}</span>
+
+    return `<div class="pc-row">
+      <div class="pc-top" style="grid-template-columns:160px 76px 1fr 1fr 1fr 100px 100px 44px">
+        <div class="pc-branch-name" style="border-left:3px solid ${BC[bi]}">
+          <div class="pc-bname">${b}</div>
+          <div class="pc-bsub">ยอดปัจจุบัน ฿${fmt(actual)}</div>
         </div>
-        <div class="pc-status" style="background:${statusBg};color:${statusCol}">
-          <span>${pct.toFixed(0)}%</span><span style="font-size:10px">${statusTxt}</span>
+        <div class="pc-status" style="background:${statusBg};color:${statusColor}">
+          <div style="font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace">${actual?pct.toFixed(0)+'%':'—'}</div>
+          <div style="font-size:10px">${statusLabel}</div>
         </div>
-        ${optHtml}
-        <div class="pc-approve ${isApproved?'ticked':''}" id="ap-${bi}" onclick="toggleApprove(${bi},${mi})">
+        ${optHTML}
+        <div class="pc-approve ${isApproved?'done':''}" id="ap-${bi}" onclick="toggleAp(${bi},${mi})">
           ${isApproved?'✅':'☐'}
         </div>
       </div>
     </div>`;
   }).join('');
-  updateApprovedSummary();
+  updateConfirm();
 }
 
-let selectedOpts={};
-function selectOpt(bi,lv){
-  selectedOpts[bi]=lv;
-  ['A','B','C'].forEach(l=>{
-    const el=document.getElementById(`opt-${bi}-${l}`);
-    if(el){el.className='pc-opt'+(l===lv?' '+OPTLV[l].cls:'');}
-  });
-}
-
-function toggleApprove(bi,mi){
-  const key=`${mi}-${bi}`;
-  approved[key]=!approved[key];
-  document.getElementById(`ap-${bi}`).className=`pc-approve ${approved[key]?'ticked':''}`;
-  document.getElementById(`ap-${bi}`).textContent=approved[key]?'✅':'☐';
-  updateApprovedSummary();
-}
-
-function updateApprovedSummary(){
-  const mi=parseInt(document.getElementById('promoMonth').value);
-  const items=BR.map((b,bi)=>{
-    const key=`${mi}-${bi}`;
-    if(!approved[key])return null;
-    const lv=selectedOpts[bi]||'B';
-    const [pname,pest]=OPTS[b][lv];
-    return `<span style="display:inline-block;background:#fff;border:1px solid #86EFAC;border-radius:6px;padding:3px 8px;margin:2px"><strong>${b}</strong>: ${pname} <em style="color:#10B981">฿${fmt(pest)}</em></span>`;
-  }).filter(Boolean);
-  const summary=document.getElementById('approvedSummary');
-  if(items.length>0){
-    summary.style.display='block';
-    document.getElementById('approvedList').innerHTML=items.join(' ');
-  } else {
-    summary.style.display='none';
+function refreshOpt(bi,lv){
+  const b=BR[bi];
+  const pname=customD[b][lv+'name']||'';
+  const pest=customD[b][lv+'est']||0;
+  const el=document.getElementById(`opt-${bi}-${lv}`);
+  if(el){
+    const estEl=el.querySelector('.pc-opt-est');
+    if(estEl)estEl.textContent=pest?'฿'+fmt(pest):'';
   }
 }
 
-function clearAll(){
-  approved={};selectedOpts={};
-  renderPromoCompare();
+function selectOpt(bi,lv){
+  const mi=parseInt(document.getElementById('promoMo').value);
+  const apKey=`${mi}-${bi}`;
+  approved[apKey]=lv;
+  ['A','B','C','D','E'].forEach(l=>{
+    const el=document.getElementById(`opt-${bi}-${l}`);
+    if(el)el.className=el.className.replace(/sel-[a-z]/g,'').trim()+(l===lv?' '+OPTMETA[l].selCls:'');
+  });
+  const apEl=document.getElementById(`ap-${bi}`);
+  if(apEl){apEl.className='pc-approve done';apEl.textContent='✅';}
+  updateConfirm();
 }
 
-function printView(){
-  window.print();
+function toggleAp(bi,mi){
+  const apKey=`${mi}-${bi}`;
+  if(approved[apKey]){
+    delete approved[apKey];
+    const apEl=document.getElementById(`ap-${bi}`);
+    if(apEl){apEl.className='pc-approve';apEl.textContent='☐';}
+    ['A','B','C','D','E'].forEach(l=>{
+      const el=document.getElementById(`opt-${bi}-${l}`);
+      if(el)el.className=el.className.replace(/sel-[a-z]/g,'').trim();
+    });
+  }
+  updateConfirm();
 }
 
-// ── PROMO HISTORY BADGES ──
+function updateConfirm(){
+  const mi=parseInt(document.getElementById('promoMo').value);
+  const wk=document.getElementById('promoWk').value;
+  const items=BR.map((b,bi)=>{
+    const apKey=`${mi}-${bi}`;
+    const lv=approved[apKey];
+    if(!lv)return null;
+    const isCustom=lv==='D'||lv==='E';
+    const [pname,pest]=isCustom?[customD[b][lv+'name']||'(ยังไม่ได้กรอก)',customD[b][lv+'est']||0]:(OPTS[b]?.[lv]||['',0]);
+    return `<div class="confirm-chip"><strong>${b}</strong> → ${pname} <span style="color:var(--green);font-family:'IBM Plex Mono',monospace">฿${fmt(pest)}</span></div>`;
+  }).filter(Boolean);
+  const strip=document.getElementById('confirmStrip');
+  document.getElementById('cfWk').textContent=wk;
+  if(items.length){strip.className='confirm-strip show';document.getElementById('cfItems').innerHTML=items.join('');}
+  else{strip.className='confirm-strip';}
+}
+
+function clearApprove(){
+  approved={};
+  buildCompare();
+}
+
+// ──── Promo History Badges ────
 function buildHistPills(){
-  document.getElementById('histBrPills').innerHTML=BR.map((b,i)=>`<button class="pill ${i===0?'on':''}" onclick="selHistBr(${i})">${b}</button>`).join('');
+  document.getElementById('histPills').innerHTML=BR.map((b,i)=>`<button class="pill ${i===0?'on':''}" onclick="pickHistBr(${i})">${b}</button>`).join('');
 }
-function selHistBr(i){
-  histBr=i;
-  document.querySelectorAll('#histBrPills .pill').forEach((p,j)=>p.classList.toggle('on',j===i));
-  renderHistContent(i);
+function pickHistBr(i){
+  selHistBr=i;
+  document.querySelectorAll('#histPills .pill').forEach((p,j)=>p.classList.toggle('on',j===i));
+  renderHistBadges(i);
 }
 
-function renderHistContent(bi){
+function renderHistBadges(bi){
   const b=BR[bi];
   const st=ST[b];
   const sorted=Object.entries(st).sort((a,x)=>x[1].avg-a[1].avg);
-  const [bpName]=sorted[0]||[];
+  const [bpName]=sorted[0]||[''];
   const oavg=BAVG[b];
 
-  function promoLevel(p){
-    if(!p)return['⚪','#94A3B8','#F1F5F9'];
-    if(p.includes('Gift')||p.includes('Bag')||p.includes('800'))return['🔴 แรง','#DC2626','#FEF2F2'];
-    if(p.includes('2 PC')||p.includes('2PC')||p.includes('50'))return['🟡 กลาง','#D97706','#FFFBEB'];
-    if(p.includes('10%'))return['🟢 เบา','#10B981','#F0FDF4'];
-    return['⚪ ไม่มีโปร','#94A3B8','#F1F5F9'];
+  function plv(p){
+    if(!p||p==='renovate')return['⚪','#9CA3AF','#F1F5F9'];
+    if(p.includes('Gift')||p.includes('Bag')||p.includes('800'))return['🔴','#DC2626','#FEF2F2'];
+    if(p.includes('2 PC')||p.includes('2PC')||p.includes('50'))return['🟡','#D97706','#FFFBEB'];
+    if(p.includes('10%'))return['🟢','#059669','#F0FDF4'];
+    return['⚪','#9CA3AF','#F1F5F9'];
   }
 
   const badges=sorted.map(([p,s])=>{
-    const isBest=p===bpName;
-    const isGood=s.avg>oavg;
-    const [lvtxt,col,bg]=promoLevel(p);
-    return `<div class="pb ${isBest?'best':''}">
-      ${isBest?'<div class="crown">🏆</div>':''}
-      <div class="pb-n">${p}</div>
+    const isBest=p===bpName,isGood=s.avg>oavg;
+    const [ico,col,bg]=plv(p);
+    return `<div class="pb ${isBest?'best':''}" style="background:${bg}">
+      ${isBest?'<div class="pb-crown">🏆</div>':''}
+      <div class="pb-name">${p}</div>
       <div class="pb-avg" style="color:${col}">฿${fmt(s.avg)}</div>
-      <div class="pb-meta">max ฿${fmt(s.max)} · n=${s.n}wk</div>
-      <span class="pb-lv" style="background:${bg};color:${col}">${lvtxt}</span>
+      <div class="pb-meta">max ฿${fmt(s.max)} · ใช้ ${s.n} สัปดาห์</div>
+      <span class="pb-lv" style="background:${bg};color:${col};border:1px solid ${col}40">${ico} ${isBest?'Best':isGood?'ดีกว่า avg':'ต่ำกว่า avg'}</span>
     </div>`;
   }).join('');
 
-  document.getElementById('histContent').innerHTML=`
-    <div style="background:#F0F9FF;border-radius:7px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--muted)">
-      ${b} · avg ทุกสัปดาห์: <strong>฿${fmt(oavg)}</strong> · ${sorted.length} ประเภทโปร · Best: <strong style="color:var(--blue)">${bpName||'—'}</strong>
+  document.getElementById('histBadges').innerHTML=`
+    <div style="background:#EFF6FF;border-radius:7px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--muted)">
+      ${b} · avg ฿${fmt(oavg)}/สัปดาห์ · ${sorted.length} ประเภทโปร · Best: <strong style="color:var(--blue)">${bpName||'—'}</strong>
     </div>
-    <div class="pb-grid" style="margin-bottom:14px">${badges}</div>
-    <div class="tw"><table class="t">
-      <thead><tr><th style="text-align:left">โปร</th><th>avg/wk</th><th>สูงสุด</th><th>ต่ำสุด</th><th>รวม</th><th>n</th><th>vs avg</th><th>ผล</th></tr></thead>
+    <div class="pb-wrap">${badges}</div>
+    <div class="tw"><table class="t" style="font-size:11px">
+      <thead><tr><th style="text-align:left">โปร</th><th>avg/wk</th><th>สูงสุด</th><th>ต่ำสุด</th><th>รวม</th><th>n สัปดาห์</th><th>vs avg</th><th>ผล</th></tr></thead>
       <tbody>${sorted.map(([p,s])=>{
         const diff=s.avg-oavg;
         return `<tr style="${p===bpName?'background:#FFFBEB':s.avg>oavg?'background:#F0FDF4':''}">
           <td>${p===bpName?'🏆 ':''}<strong>${p}</strong></td>
           <td>฿${fmt(s.avg)}</td><td>฿${fmt(s.max)}</td><td>฿${fmt(s.min)}</td>
           <td>฿${fmt(s.tot)}</td><td>${s.n}</td>
-          <td class="${diff>=0?'up':'dn'}">${diff>=0?'+':''}฿${fmt(diff)}</td>
-          <td>${p===bpName?'<span class="tag t-ok">Best</span>':s.avg>oavg?'<span class="tag t-w">ดี</span>':'<span class="tag t-f">ต่ำ</span>'}</td>
+          <td style="color:${diff>=0?'#059669':'#DC2626'}">${diff>=0?'+':''}฿${fmt(diff)}</td>
+          <td>${p===bpName?'<span class="tag t-ok">Best</span>':s.avg>oavg?'<span class="tag t-w">ดี</span>':'<span class="tag" style="background:#FEE2E2;color:#991B1B">ต่ำ</span>'}</td>
         </tr>`;}).join('')}
       </tbody>
     </table></div>`;
 }
 
-// ── HISTORY TABLE + CHART ──
-function renderHistTable(){
-  const bi=parseInt(document.getElementById('histBrSel').value);
+// ──── History Chart & Table ────
+function buildHistSel(){
+  const sel=document.getElementById('histSel');
+  sel.innerHTML=`<option value="-1">รวมทุกสาขา</option>`+BR.map((b,i)=>`<option value="${i}">${b}</option>`).join('');
+}
+function renderHistory(){
+  const bi=parseInt(document.getElementById('histSel').value);
   if(charts.hist)charts.hist.destroy();
 
   if(bi===-1){
-    // all branches total
-    const totals=WEEKS.map((_,wi)=>BR.map(b=>PD[b][wi][1]).reduce((s,v)=>s+v,0));
-    document.getElementById('lHist').innerHTML=`<div class="li"><div class="ld" style="background:#1D4ED8"></div>รวมทุกสาขา/สัปดาห์</div>`;
-    charts.hist=new Chart(document.getElementById('cHist'),{type:'bar',data:{labels:WEEKS,datasets:[{label:'Total',data:totals,backgroundColor:'#1D4ED8',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:true,maxRotation:45,font:{size:9}}}}}});
-    document.getElementById('histTableWrap').innerHTML='';
+    const tots=WEEKS.map((_,wi)=>BR.map(b=>(PD[b]||[])[wi]?.[1]||0).reduce((s,v)=>s+v,0));
+    document.getElementById('histLeg').innerHTML=`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#1D4ED8"></span>รวมทุกสาขา/สัปดาห์</span>`;
+    charts.hist=new Chart(document.getElementById('cHist'),{type:'bar',data:{labels:WEEKS,datasets:[{label:'Total',data:tots,backgroundColor:'#1D4ED8',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:true,maxRotation:45,font:{size:9}}}}}});
+    document.getElementById('histTblWrap').innerHTML='';
     return;
   }
 
   const b=BR[bi];
-  const data=PD[b];
+  const data=PD[b]||[];
   const vals=data.map(([,v])=>v);
   const bavg=BAVG[b];
   const bmax=Math.max(...vals);
-  const [bpName]=bestP(b);
+  const [bpName]=best1(b);
+  document.getElementById('histLeg').innerHTML=`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:${BC[bi]}"></span>${b}</span><span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:10px;height:2px;background:#9CA3AF;border-top:1px dashed #9CA3AF"></span>avg ฿${fmt(bavg)}/wk</span>`;
+  charts.hist=new Chart(document.getElementById('cHist'),{type:'bar',data:{labels:WEEKS,datasets:[{label:b,data:vals,backgroundColor:vals.map(v=>v===bmax?'#F59E0B':v>bavg?'#10B981':'#EF4444'),borderRadius:3},{label:'avg',data:WEEKS.map(()=>bavg),type:'line',borderColor:'#9CA3AF',borderDash:[4,3],pointRadius:0,borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const[p]=data[ctx.dataIndex];return p?`โปร: ${p}`:'';},label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:true,maxRotation:45,font:{size:9}}}}}});
 
-  document.getElementById('lHist').innerHTML=`<div class="li"><div class="ld" style="background:${BC[bi]}"></div>${b}</div><div class="li"><div class="ld" style="background:#9CA3AF;border-style:dashed"></div>avg (฿${fmt(bavg)}/wk)</div>`;
-
-  const bgColors=vals.map(v=>v===bmax?'#F59E0B':v>bavg?'#10B981':'#EF4444');
-  charts.hist=new Chart(document.getElementById('cHist'),{type:'bar',data:{labels:WEEKS,datasets:[{label:b,data:vals,backgroundColor:bgColors,borderRadius:3},{label:'avg',data:WEEKS.map(()=>bavg),type:'line',borderColor:'#9CA3AF',borderDash:[5,3],pointRadius:0,borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:(ctx)=>{const[p]=data[ctx.dataIndex];return p?`โปร: ${p}`:'';},label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:true,maxRotation:45,font:{size:9}}}}}});
-
-  // Table
   const rows=data.map(([p,v],wi)=>{
-    if(v===0&&!p)return '';
-    const isMax=v===bmax;const isGood=v>bavg;
+    if(!WEEKS[wi])return'';
+    const isMax=v===bmax&&v>0,isGood=v>bavg&&v>0;
     const cls=isMax?'gold':isGood?'good':v>0?'low':'';
-    return `<tr class="${cls}"><td>${wi+1}</td><td>${WEEKS[wi]}</td><td style="text-align:center;font-size:10px;color:#6B7280">${WM[wi]}</td><td style="text-align:left">${isMax?'🏆 ':''}<strong>${p||'—'}</strong></td><td>฿${fmt(v)}</td><td class="${v>bavg?'up':'dn'}" style="text-align:right;font-size:10px">${v>0?((v>=bavg?'+':'')+'฿'+fmt(v-bavg)):''}</td></tr>`;
+    return `<tr class="${cls}"><td>${wi+1}</td><td>${WEEKS[wi]} <span style="font-size:9px;color:var(--muted)">${WM[wi]}</span></td><td style="text-align:left">${isMax?'🏆 ':''}<strong>${p||'—'}</strong></td><td>฿${fmt(v)}</td><td style="color:${v>bavg?'#10B981':'#DC2626'};font-size:10px">${v>0?(v>=bavg?'+':'')+'฿'+fmt(v-bavg):''}</td></tr>`;
   }).join('');
-
-  document.getElementById('histTableWrap').innerHTML=`<div class="tw"><table class="wh-t"><thead><tr><th>#</th><th>สัปดาห์</th><th>เดือน</th><th>โปรโมชั่น</th><th>ยอดขาย</th><th>vs avg</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('histTblWrap').innerHTML=`<div class="tw"><table class="htbl"><thead><tr><th>#</th><th>สัปดาห์</th><th>โปรโมชั่น</th><th>ยอดขาย</th><th>vs avg</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
-// ── TAB ──
+// ─── Tab ───
 function show(n,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
@@ -737,16 +643,7 @@ function show(n,el){
   el.classList.add('on');
 }
 
-// ── SETUP ──
-function saveLoad(){
-  const u=document.getElementById('scriptUrl').value.trim();
-  if(u)localStorage.setItem('mbUrl',u);
-  loadData();
-}
-
-const sv=localStorage.getItem('mbUrl');
-if(sv)document.getElementById('scriptUrl').value=sv;
-loadData();
+setTimeout(init,300);
 </script>
 </body>
 </html>
