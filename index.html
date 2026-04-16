@@ -156,14 +156,8 @@ input.inp[type=number]{width:110px;font-family:'IBM Plex Mono',monospace;text-al
     <button class="ntab" onclick="show('branches',this)">🏪 รายสาขา</button>
     <button class="ntab" onclick="show('promo',this)">🎯 เปรียบโปร</button>
     <button class="ntab" onclick="show('history',this)">📅 ประวัติโปร</button>
-    <button class="ntab ntab-setup" onclick="show('setup',this)">⚙ ตั้งค่า</button>
   </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:6px;padding:0 12px;flex-shrink:0;border-left:1px solid #1F2937">
-    <div class="ndot" id="dot"></div>
-    <span id="syncLabel" style="font-size:10px;color:#6B7280;white-space:nowrap"></span>
-    <button onclick="show('setup',document.querySelector('.ntab-setup'))" style="background:#1E40AF;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:10px;cursor:pointer;font-family:inherit">⚙ Sync</button>
-  </div>
+  <div class="ndot ok" id="dot" style="margin:auto 12px"></div>
 </nav>
 
 <div class="main">
@@ -253,77 +247,6 @@ input.inp[type=number]{width:110px;font-family:'IBM Plex Mono',monospace;text-al
   </div>
 </div>
 
-<!-- ═══ SETUP & SYNC ═══ -->
-<div id="p-setup" class="panel">
-  <div class="g2" style="align-items:start">
-    <div class="card">
-      <div class="ct">🔗 เชื่อม Google Sheets (Real-time)</div>
-      <div style="background:#EFF6FF;border-left:3px solid #3B82F6;border-radius:0 6px 6px 0;padding:10px 12px;font-size:11px;color:#1E40AF;line-height:1.7;margin-bottom:12px">
-        <strong>วิธี Deploy Apps Script:</strong><br>
-        1. เปิด Google Sheets → Extensions → Apps Script<br>
-        2. วางโค้ด Code.gs ที่ได้รับมา → Save<br>
-        3. รัน <code>setupAll()</code> → อนุญาต Permissions<br>
-        4. Deploy → New deployment → Web App → Anyone<br>
-        5. Copy URL → วางด้านล่าง → บันทึก
-      </div>
-      <div style="margin-bottom:10px">
-        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">Apps Script Web App URL</label>
-        <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/xxxx/exec"
-          style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
-      </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="saveAndLoad()" style="flex:1;padding:8px;border-radius:6px;border:none;background:#1D4ED8;color:#fff;cursor:pointer;font-size:12px;font-family:inherit">💾 บันทึกและโหลดข้อมูล</button>
-        <button onclick="manualRefresh()" style="padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;font-family:inherit">↻ Refresh</button>
-      </div>
-      <div style="margin-top:10px;padding:9px 12px;background:#F9FAFB;border-radius:6px;font-size:11px;color:var(--muted)">
-        สถานะ: <span id="setupStatus" style="font-weight:600">—</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="ct">📊 สถานะวันนี้</div>
-      <div id="dailyStatus">
-        <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">กำลังโหลด...</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ct">📋 Sync Log ล่าสุด</div>
-    <div id="syncLogTable">
-      <div style="padding:16px;text-align:center;color:var(--muted);font-size:12px">ยังไม่มีข้อมูล — เชื่อม Apps Script ก่อน</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ct">📁 วิธีให้แต่ละสาขาส่งยอด</div>
-    <div style="font-size:12px;color:var(--ink2);line-height:2">
-      <strong>ขั้นตอนตั้งค่าครั้งเดียว:</strong><br>
-      1. สร้าง Folder ชื่อ <code>branch_sales</code> บน Google Drive<br>
-      2. แชร์ Folder ให้แต่ละสาขา (Viewer ก็พอ ถ้าส่งผ่าน Form / Editor ถ้าให้อัปโหลดเอง)<br>
-      3. แต่ละสาขาวางไฟล์ Excel ชื่อตามตารางด้านล่าง<br>
-      4. Script จะดึงยอดขายจากไฟล์เหล่านี้ทุกเช้า 7:00 AM อัตโนมัติ<br><br>
-      <strong>ชื่อไฟล์ที่แต่ละสาขาต้องตั้ง:</strong>
-    </div>
-    <div style="overflow-x:auto;margin-top:8px">
-      <table class="t" style="font-size:11px">
-        <thead><tr><th>สาขา</th><th>ชื่อไฟล์ที่ต้องตั้ง</th><th>ชีทใน Excel</th><th>col A</th><th>col B</th></tr></thead>
-        <tbody>
-          <tr><td>MB Siam (Cutting)</td><td><code>MBSIAM_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>MB Westgate</td><td><code>MBWESTGATE_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>MB Saraburi</td><td><code>MBSARABURI_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>Kim Fashion</td><td><code>KIMFASHION_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>ASAP</td><td><code>ASAP_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>MB Seacon</td><td><code>MBSEACON_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>Freak Siam</td><td><code>FREAKSIAM_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>Frank Siam</td><td><code>FRANKSIAM_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-          <tr><td>Frank Emsphere</td><td><code>FRANKEMSPHERE_daily.xlsx</code></td><td>Daily</td><td>วันที่</td><td>ยอดขาย</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
 </div><!-- /main -->
 
 <script>
@@ -386,124 +309,10 @@ const pn=(a,b)=>b>0?a/b*100:0;
 const totM=i=>MON[i].reduce((s,v)=>s+v,0);
 const customD={};BR.forEach(b=>{customD[b]={Dname:'',Dest:0,Ename:'',Eest:0};});
 
-// ─── Config ───
-const SCRIPT_URL_KEY = 'mb_script_url';
-
 // ─── Init ───
-async function init(){
-  const url = localStorage.getItem(SCRIPT_URL_KEY)||'';
-  if(url){ document.getElementById('scriptUrl').value=url; }
-  await loadFromScriptOrFallback();
-}
-
-async function loadFromScriptOrFallback(){
-  const url = localStorage.getItem(SCRIPT_URL_KEY)||document.getElementById('scriptUrl')?.value?.trim()||'';
-  setDot('loading');
-  document.getElementById('syncLabel').textContent='กำลังโหลด...';
-  document.getElementById('loader').style.display='flex';
-
-  if(typeof google!=='undefined'&&google.script){
-    // Embedded in Google Sheets sidebar
-    google.script.run
-      .withSuccessHandler(d=>{mergeRemoteData(JSON.parse(d));go('ok','Google Sheets');})
-      .withFailureHandler(()=>go('ok','Embedded'))
-      .getDashboardData();
-    return;
-  }
-
-  if(url&&url.includes('script.google.com')){
-    try{
-      const r = await fetch(url+'?action=dashboard');
-      if(r.ok){
-        const d = await r.json();
-        if(!d.error){ mergeRemoteData(d); go('ok',`Live · ${d.updatedAt}`); return; }
-      }
-    }catch(e){}
-  }
-  go('ok','Embedded data (เชื่อม Apps Script เพื่อดูแบบ real-time)');
-}
-
-function mergeRemoteData(d){
-  if(d?.monthly) d.monthly.forEach((row,i)=>{ if(i<MON.length) MON[i]=row; });
-  if(d?.syncLog) renderSyncLog(d.syncLog);
-  if(d?.branches) renderDailyStatus(d);
-}
-
-async function manualRefresh(){ await loadFromScriptOrFallback(); }
-
-function saveAndLoad(){
-  const url=document.getElementById('scriptUrl')?.value?.trim()||'';
-  if(url) localStorage.setItem(SCRIPT_URL_KEY,url);
-  loadFromScriptOrFallback();
-}
-
-function setDot(s){
-  const d=document.getElementById('dot');
-  if(!d)return;
-  d.className='ndot';
-  if(s==='ok'){d.style.background='#10B981';d.style.boxShadow='0 0 0 3px rgba(16,185,129,.2)';}
-  else if(s==='loading'){d.style.background='#F59E0B';d.style.boxShadow='none';}
-  else{d.style.background='#EF4444';d.style.boxShadow='none';}
-}
-
-function go(status,src){
-  setDot(status);
+function init(){
   document.getElementById('loader').style.display='none';
-  document.getElementById('syncLabel').textContent=src;
-  document.getElementById('setupStatus').textContent=src+' · '+new Date().toLocaleTimeString('th-TH');
   renderAll();
-}
-
-function renderDailyStatus(d){
-  if(!d?.branches||!d?.currentDay) return;
-  const ap=d.ap||d.daysInMonth||30;
-  const aq=d.aq||d.currentDay||1;
-  const ar=ap-aq;
-  document.getElementById('dailyStatus').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-      <div style="background:#FEF9C3;border:1px solid #F59E0B;border-radius:7px;padding:9px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#92400E">AP — วันในเดือน</div>
-        <div style="font-size:22px;font-weight:700;color:#92400E;font-family:'IBM Plex Mono',monospace">${ap}</div>
-        <div style="font-size:10px;color:#B45309">วัน</div>
-      </div>
-      <div style="background:#DBEAFE;border:1px solid #3B82F6;border-radius:7px;padding:9px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#1E40AF">AQ — วันที่ดึงยอด</div>
-        <div style="font-size:22px;font-weight:700;color:#1E40AF;font-family:'IBM Plex Mono',monospace">${aq}</div>
-        <div style="font-size:10px;color:#1D4ED8">วันที่ ${d.currentDay} /${String(d.currentMonth).padStart(2,'0')}</div>
-      </div>
-      <div style="background:#D1FAE5;border:1px solid #10B981;border-radius:7px;padding:9px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#065F46">AR — วันคงเหลือ</div>
-        <div style="font-size:22px;font-weight:700;color:#065F46;font-family:'IBM Plex Mono',monospace">${ar}</div>
-        <div style="font-size:10px;color:#0F766E">วัน (AP-AQ)</div>
-      </div>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">ยอดวันนี้ (${d.updatedAt||''})</div>
-    ${(d.branches||[]).map((br,i)=>{
-      const pct=br.pct||0;
-      const col=pct>=90?'#10B981':pct>=70?'#F59E0B':'#EF4444';
-      return \`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
-        <div style="width:110px;font-size:11px;font-weight:500;color:var(--navy)">\${br.name}</div>
-        <div style="flex:1;height:14px;background:#EEF2F7;border-radius:3px;overflow:hidden">
-          <div style="height:100%;width:\${Math.min(pct,100)}%;background:\${col};border-radius:3px"></div>
-        </div>
-        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;width:85px;text-align:right">฿\${(br.todaySales||0).toLocaleString('th-TH')}</div>
-        <div style="font-size:10px;color:var(--muted);width:35px;text-align:right">\${pct}%</div>
-      </div>\`;
-    }).join('')}`;
-}
-
-function renderSyncLog(logs){
-  if(!logs?.length) return;
-  const el=document.getElementById('syncLogTable');
-  if(!el) return;
-  el.innerHTML=\`<table class="t" style="font-size:11px">
-    <thead><tr><th>เวลา</th><th>ประเภท</th><th>รายละเอียด</th></tr></thead>
-    <tbody>\${logs.map(l=>\`<tr style="background:\${l.type==='SUCCESS'?'#F0FDF4':l.type==='ERROR'?'#FEF2F2':'#FFFBEB'}">
-      <td style="font-family:'IBM Plex Mono',monospace;white-space:nowrap">\${l.time}</td>
-      <td><span class="tag \${l.type==='SUCCESS'?'t-ok':l.type==='ERROR'?'t-f':'t-w'}">\${l.type}</span></td>
-      <td style="text-align:left;white-space:pre-wrap;max-width:400px">\${l.message}</td>
-    </tr>\`).join('')}
-    </tbody></table>\`;
 }
 function renderAll(){
   renderKPI();renderOKR();renderMainChart();renderPieChart();renderTrendChart();
@@ -834,7 +643,7 @@ function show(n,el){
   el.classList.add('on');
 }
 
-init();
+setTimeout(init,300);
 </script>
 </body>
 </html>
