@@ -3,317 +3,306 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sales Dashboard 2026</title>
+<title>Sales & Promo Dashboard 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root{
-  --dark:#1E3A5F;--mid:#2E6DA4;--teal:#1D9E75;--red:#D85A30;--warn:#E8A317;
-  --purple:#7F77DD;--bg:#F0F3F8;--card:#fff;--text:#1a1a2e;--muted:#64748B;
-  --border:#E2E8F0;--green:#1D9E75;
+  --navy:#1E3A5F;--blue:#2E6DA4;--teal:#1D9E75;--red:#D85A30;
+  --warn:#E8A317;--purple:#7F77DD;--bg:#EEF2F8;--card:#fff;
+  --text:#1a2540;--muted:#64748B;--border:#E2E8F0;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
 
-/* ── NAV ── */
-.nav{background:var(--dark);padding:0 24px;display:flex;align-items:stretch;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
-.nav-brand{display:flex;align-items:center;gap:10px;padding:14px 20px 14px 0;border-right:1px solid rgba(255,255,255,.1);margin-right:16px}
-.nav-brand h1{font-size:15px;font-weight:700;color:#fff}
-.nav-brand small{font-size:11px;color:#9BB5D0;display:block}
-.nav-tab{padding:0 18px;color:rgba(255,255,255,.65);border:none;background:none;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;border-bottom:3px solid transparent;transition:all .2s;height:100%}
-.nav-tab:hover{color:#fff;background:rgba(255,255,255,.08)}
-.nav-tab.active{color:#fff;border-bottom-color:var(--teal);background:rgba(255,255,255,.05)}
-.nav-tab .icon{font-size:15px}
-.nav-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
-.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#148A63}
-.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}.btn-ghost:hover{background:rgba(255,255,255,.2)}
-#statusDot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#6B7280}
-#statusDot.ok{background:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.25)}
-#statusDot.loading{background:var(--warn);animation:pulse 1s infinite}
-#statusDot.err{background:var(--red)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* NAV */
+.nav{background:var(--navy);display:flex;align-items:stretch;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.4)}
+.nav-logo{padding:12px 20px;border-right:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;justify-content:center}
+.nav-logo h1{font-size:14px;font-weight:800;color:#fff}
+.nav-logo span{font-size:10px;color:#7FA8C9}
+.nav-tabs{display:flex}
+.ntab{padding:0 18px;background:none;border:none;color:rgba(255,255,255,.55);cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;display:flex;align-items:center;gap:5px;transition:all .15s}
+.ntab:hover{color:#fff;background:rgba(255,255,255,.06)}
+.ntab.active{color:#fff;border-bottom-color:var(--teal)}
+.ntab .ico{font-size:14px}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;padding:0 16px}
+.dot{width:8px;height:8px;border-radius:50%;background:#4B5563;flex-shrink:0}
+.dot.ok{background:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.2)}
+.dot.loading{background:var(--warn);animation:blink 1s infinite}
+.dot.err{background:var(--red)}
+@keyframes blink{50%{opacity:.3}}
+.btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#148A63}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}.btn-ghost:hover{background:rgba(255,255,255,.18)}
 
-/* ── LAYOUT ── */
-.main{padding:20px 24px;max-width:1440px;margin:0 auto}
+/* LAYOUT */
+.main{padding:18px 22px;max-width:1440px;margin:0 auto}
 .panel{display:none}.panel.active{display:block}
 
-/* ── SECTION HDR ── */
-.sec-hdr{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;display:flex;align-items:center;gap:8px}
-.sec-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+/* SECTION TITLE */
+.sec-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ── KPI GRID ── */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px}
-.kpi{background:var(--card);border-radius:10px;padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.kpi.ok::before{background:var(--teal)}
-.kpi.warn::before{background:var(--warn)}
-.kpi.fail::before{background:var(--red)}
-.kpi.neutral::before{background:var(--mid)}
-.kpi-lbl{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600}
-.kpi-val{font-size:19px;font-weight:800;color:var(--text);line-height:1}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
-.kpi-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px}
-.badge-ok{background:#D1FAE5;color:#065F46}
-.badge-warn{background:#FEF3C7;color:#92400E}
-.badge-fail{background:#FEE2E2;color:#991B1B}
-.badge-neu{background:#E0E7FF;color:#3730A3}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--border);position:relative;overflow:hidden;cursor:default}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue)}
+.kpi.ok::before{background:var(--teal)}.kpi.warn::before{background:var(--warn)}.kpi.fail::before{background:var(--red)}.kpi.pend::before{background:#94A3B8}
+.kpi-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-size:20px;font-weight:800;margin:3px 0;color:var(--text);line-height:1}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;margin-top:5px}
+.b-ok{background:#D1FAE5;color:#065F46}.b-warn{background:#FEF3C7;color:#92400E}
+.b-fail{background:#FEE2E2;color:#991B1B}.b-pend{background:#E0E7FF;color:#3730A3}
 
-/* ── CARDS ── */
-.card{background:var(--card);border-radius:12px;padding:18px 20px;border:1px solid var(--border);margin-bottom:16px}
-.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
-
-/* ── CHART WRAPPER ── */
+/* CARDS */
+.card{background:var(--card);border-radius:12px;padding:16px 18px;border:1px solid var(--border);margin-bottom:14px}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
 .chart-wrap{position:relative;width:100%}
 
-/* ── MONTH SELECTOR ── */
-.month-sel-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.pill-group{display:flex;gap:4px;flex-wrap:wrap}
-.pill{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .15s;font-weight:600}
-.pill:hover{border-color:var(--mid);color:var(--mid)}
-.pill.active{background:var(--mid);color:#fff;border-color:var(--mid)}
-select.sel{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);cursor:pointer}
-
-/* ── BRANCH TABLE ── */
-.data-table{width:100%;border-collapse:collapse;font-size:13px}
-.data-table th{background:var(--dark);color:#fff;padding:9px 12px;text-align:center;font-size:11px;font-weight:700;position:sticky;top:0}
-.data-table th:first-child{text-align:left}
-.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:center}
-.data-table td:first-child{text-align:left;font-weight:700;color:var(--dark)}
-.data-table tr:nth-child(even) td{background:#FAFBFC}
-.data-table tr:hover td{background:rgba(46,109,164,.05)}
-.data-table tfoot td{background:#EEF2FF;font-weight:700;border-top:2px solid var(--mid)}
-.tbl-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);overflow-x:auto}
-
-/* ── BAR ROWS (branch bars) ── */
-.bar-rows{display:flex;flex-direction:column;gap:8px}
-.brow{display:flex;align-items:center;gap:10px}
-.brow-name{width:140px;font-size:12px;font-weight:700;color:var(--dark);flex-shrink:0}
-.brow-track{flex:1;height:22px;background:#EEF2F7;border-radius:5px;overflow:hidden}
-.brow-fill{height:100%;border-radius:5px;transition:width .5s ease;display:flex;align-items:center;padding-left:8px}
-.brow-fill span{font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
-.brow-val{width:90px;text-align:right;font-size:12px;font-weight:700}
-.brow-pct{width:45px;text-align:right;font-size:11px;color:var(--muted)}
-.brow-trend{width:65px;text-align:right;font-size:11px;font-weight:700}
-
-/* ── TREND ARROW ── */
-.up{color:var(--teal)}.dn{color:var(--red)}.flat{color:var(--muted)}
-
-/* ── STATUS TAG ── */
-.tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.tag-ok{background:#D1FAE5;color:#065F46}
-.tag-warn{background:#FEF3C7;color:#92400E}
-.tag-fail{background:#FEE2E2;color:#991B1B}
-.tag-neu{background:#E0E7FF;color:#3730A3}
-
-/* ── PROMO PLANNER ── */
-.promo-input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-bottom:20px}
-.promo-card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
-.promo-card-header{background:var(--dark);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
-.promo-card-header .branch-name{font-weight:700;font-size:13px}
-.promo-card-body{padding:14px 16px}
-.promo-form-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.promo-form-row label{font-size:12px;color:var(--muted);min-width:110px;font-weight:600}
-.promo-form-row input,.promo-form-row select{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#FAFAFA}
-.promo-form-row input:focus,.promo-form-row select:focus{border-color:var(--mid);outline:none;background:#fff}
-.promo-result{background:linear-gradient(135deg,#EEF7FF,#E8F5E9);border-radius:8px;padding:10px 12px;margin-top:10px;border:1px solid #C3E6CB}
-.promo-result .rec-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.promo-result .rec-7{font-size:14px;font-weight:800;color:var(--mid);margin:3px 0}
-.promo-result .rec-5{font-size:13px;font-weight:700;color:var(--teal)}
-.promo-result .rec-reason{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* ── PROMO HISTORY TABLE ── */
-.promo-history{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
-.history-header{background:var(--mid);color:#fff;padding:12px 16px;font-weight:700;font-size:13px}
-.history-scroll{overflow-x:auto}
-
-/* ── LEGEND ── */
-.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
-.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
-.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
-
-/* ── LOADING ── */
-.loading-cover{position:fixed;inset:0;background:rgba(30,58,95,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px}
-.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.load-txt{color:#9BB5D0;font-size:13px}
-
-/* ── OKR BANNER ── */
-.okr-banner{background:linear-gradient(135deg,#FEE2E2,#FEF3C7);border:1px solid #FCA5A5;border-radius:12px;padding:14px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.okr-left{}.okr-title{font-weight:800;color:#991B1B;font-size:14px}
-.okr-sub{font-size:12px;color:#B45309;margin-top:2px}
-.okr-pills{display:flex;flex-wrap:wrap;gap:6px}
-.okr-pill{background:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;border:1px solid #FCA5A5;color:#991B1B}
+/* BANNER */
+.okr-banner{background:linear-gradient(135deg,#FEF2F2,#FEF9EC);border:1px solid #FCA5A5;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.okr-pills{display:flex;flex-wrap:wrap;gap:5px}
+.okr-pill{background:#fff;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;border:1px solid #FCA5A5;color:#991B1B}
 .okr-pill.pass{border-color:#6EE7B7;color:#065F46}
 
-/* ── INSIGHT BOX ── */
-.insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
-.insight{background:var(--card);border-radius:10px;border-left:4px solid var(--mid);padding:12px 16px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
-.insight.insight-ok{border-left-color:var(--teal)}
-.insight.insight-warn{border-left-color:var(--warn)}
-.insight.insight-fail{border-left-color:var(--red)}
-.insight-ico{font-size:18px;margin-bottom:6px}
-.insight-title{font-size:13px;font-weight:700;color:var(--text)}
-.insight-body{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+/* TABLE */
+.tbl-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--navy);color:#fff;padding:8px 10px;text-align:center;font-size:10px;font-weight:700;white-space:nowrap;position:sticky;top:0}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap}
+.tbl td:first-child{text-align:left;font-weight:700;color:var(--navy)}
+.tbl tr:nth-child(even) td{background:#FAFBFC}
+.tbl tr:hover td{background:#EEF4FF}
+.tbl tfoot td{background:#EEF2F7;font-weight:800;border-top:2px solid var(--blue)}
 
-/* ── SETUP ── */
-.setup-card{max-width:560px;background:var(--card);border-radius:12px;padding:24px;border:1px solid var(--border)}
-.setup-note{background:#EFF6FF;border-left:4px solid var(--mid);border-radius:0 8px 8px 0;padding:12px;font-size:12px;color:#1E40AF;line-height:1.6;margin-bottom:16px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}
-.form-group input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px}
-.form-group input:focus{border-color:var(--mid);outline:none}
+/* BAR ROWS */
+.bar-rows{display:flex;flex-direction:column;gap:7px}
+.brow{display:flex;align-items:center;gap:8px}
+.brow-name{width:130px;font-size:11px;font-weight:700;color:var(--navy);flex-shrink:0}
+.brow-track{flex:1;height:20px;background:#EEF2F7;border-radius:4px;overflow:hidden}
+.brow-fill{height:100%;border-radius:4px;transition:width .5s ease;min-width:2px;display:flex;align-items:center;padding-left:6px}
+.brow-fill span{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
+.brow-num{width:85px;text-align:right;font-size:11px;font-weight:700}
+.brow-pct{width:42px;text-align:right;font-size:10px;color:var(--muted)}
+.brow-trend{width:60px;text-align:right;font-size:10px;font-weight:700}
+.up{color:var(--teal)}.dn{color:var(--red)}.flat{color:var(--muted)}
+
+/* PILLS / TABS */
+.pill-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.pill{padding:4px 11px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);font-weight:600;transition:all .15s}
+.pill:hover{border-color:var(--blue);color:var(--blue)}
+.pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pill.dimmed{opacity:.4;cursor:not-allowed}
+select.sel{padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:var(--card);cursor:pointer}
+
+/* PROMO CARDS */
+.promo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:16px}
+.promo-card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.promo-card-head{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.promo-card-body{padding:14px}
+.form-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.form-row label{font-size:11px;color:var(--muted);font-weight:700;min-width:100px}
+.form-row input,.form-row select{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#FAFAFA}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--blue);background:#fff}
+.promo-result{background:linear-gradient(135deg,#F0F7FF,#E8F5EE);border-radius:8px;padding:10px 12px;margin-top:10px;border:1px solid #C3E6CB}
+.rec-status{font-size:11px;font-weight:700;margin-bottom:6px}
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.rec-box{padding:8px;border-radius:6px}
+.rec-box-7{background:#EEF4FF}
+.rec-box-5{background:#E8F5E9}
+.rec-box-label{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.rec-box-promo{font-size:12px;font-weight:800;color:var(--blue);margin:2px 0}
+.rec-box-5 .rec-box-promo{color:var(--teal)}
+.rec-box-amt{font-size:10px;color:var(--muted)}
+
+/* PROMO HISTORY */
+.ph-branch{margin-bottom:16px}
+.ph-branch-title{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;margin-bottom:8px;color:#fff;font-weight:700;font-size:12px}
+.ph-badge-grid{display:flex;flex-wrap:wrap;gap:6px}
+.ph-badge{display:flex;flex-direction:column;align-items:center;padding:8px 12px;border-radius:8px;border:1px solid var(--border);min-width:130px;cursor:default;position:relative}
+.ph-badge.best{border-width:2px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.ph-badge .crown{position:absolute;top:-8px;right:6px;font-size:14px}
+.ph-badge-promo{font-size:11px;font-weight:700;text-align:center}
+.ph-badge-avg{font-size:16px;font-weight:800;margin:3px 0}
+.ph-badge-meta{font-size:9px;color:var(--muted)}
+.ph-badge-level{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-top:3px}
+
+/* INSIGHTS */
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:16px}
+.insight{background:var(--card);border-radius:10px;padding:12px 14px;border-left:4px solid var(--blue);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.insight.ok{border-left-color:var(--teal)}.insight.warn{border-left-color:var(--warn)}.insight.fail{border-left-color:var(--red)}
+.insight-ico{font-size:20px;margin-bottom:5px}
+.insight-ttl{font-size:12px;font-weight:700}
+.insight-body{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
+.leg-dot{width:10px;height:10px;border-radius:2px}
+
+/* TAG */
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.t-ok{background:#D1FAE5;color:#065F46}.t-warn{background:#FEF3C7;color:#92400E}
+.t-fail{background:#FEE2E2;color:#991B1B}.t-neu{background:#E0E7FF;color:#3730A3}
+
+/* LOADING */
+.loader{position:fixed;inset:0;background:rgba(20,40,80,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-msg{color:#9BB5D0;font-size:12px}
+
+/* SETUP */
+.setup-card{max-width:520px;background:var(--card);border-radius:12px;padding:22px;border:1px solid var(--border)}
+.setup-note{background:#EFF6FF;border-left:4px solid var(--blue);border-radius:0 7px 7px 0;padding:12px;font-size:11px;color:#1E40AF;line-height:1.7;margin-bottom:14px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.fg input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-size:12px}
 </style>
 </head>
 <body>
 
-<div class="loading-cover" id="loader">
+<div class="loader" id="loader">
   <div class="spinner"></div>
-  <div class="load-txt" id="loadMsg">กำลังโหลดข้อมูล...</div>
+  <div class="load-msg" id="loadMsg">กำลังโหลดข้อมูล...</div>
 </div>
 
-<!-- NAV -->
 <nav class="nav">
-  <div class="nav-brand">
-    <div>
-      <h1>Sales Dashboard</h1>
-      <small>ยอดขาย (ฝากขาย) 2026</small>
-    </div>
+  <div class="nav-logo"><h1>Sales Dashboard 2026</h1><span>Jan – Dec 2026 · 8 สาขา</span></div>
+  <div class="nav-tabs">
+    <button class="ntab active" onclick="showTab('overview',this)"><span class="ico">📊</span>ภาพรวม</button>
+    <button class="ntab" onclick="showTab('branches',this)"><span class="ico">🏪</span>รายสาขา</button>
+    <button class="ntab" onclick="showTab('promo',this)"><span class="ico">🎯</span>วิเคราะห์โปรโมชั่น</button>
+    <button class="ntab" onclick="showTab('planner',this)"><span class="ico">📅</span>วางแผนโปร</button>
+    <button class="ntab" onclick="showTab('setup',this)"><span class="ico">⚙</span>ตั้งค่า</button>
   </div>
-  <button class="nav-tab active" onclick="showTab('overview',this)"><span class="icon">📊</span>ภาพรวม</button>
-  <button class="nav-tab" onclick="showTab('branches',this)"><span class="icon">🏪</span>รายสาขา</button>
-  <button class="nav-tab" onclick="showTab('promo',this)"><span class="icon">🎯</span>โปรโมชั่น</button>
-  <button class="nav-tab" onclick="showTab('setup',this)"><span class="icon">⚙</span>ตั้งค่า</button>
-  <div class="nav-actions">
-    <span id="statusDot"></span>
-    <button class="btn btn-primary" onclick="loadData()">↻ Refresh</button>
+  <div class="nav-right">
+    <div class="dot" id="statusDot"></div>
+    <button class="btn btn-teal" onclick="loadData()">↻ Refresh</button>
   </div>
 </nav>
 
 <div class="main">
 
-<!-- ════════════════════════════ OVERVIEW ════════════════════ -->
+<!-- ═══════════ OVERVIEW ═══════════ -->
 <div id="panel-overview" class="panel active">
-
-  <div id="kpiRow" class="kpi-row"></div>
-
+  <div id="kpiGrid" class="kpi-grid"></div>
   <div id="okrBanner" class="okr-banner">
-    <div class="okr-left">
-      <div class="okr-title">⚠ OKR Status — เป้าหมาย ≥ 90% ทุกเดือน</div>
-      <div class="okr-sub" id="okrSub">กำลังโหลด...</div>
-    </div>
+    <div><div style="font-weight:800;color:#991B1B;font-size:13px">⚠ OKR Status — เป้าหมาย ≥ 90% ทุกเดือน</div>
+    <div style="font-size:11px;color:#B45309;margin-top:2px" id="okrSub"></div></div>
     <div class="okr-pills" id="okrPills"></div>
   </div>
-
   <div id="insightGrid" class="insight-grid"></div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">ยอดขายจริง vs เป้าหมายรายเดือน</div>
-      <div class="legend" id="leg-main"></div>
-      <div class="chart-wrap" style="height:230px"><canvas id="cMain" role="img" aria-label="Monthly sales vs target bar chart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">สัดส่วนยอดขาย Jan–Apr 2026 (สาขา)</div>
-      <div class="chart-wrap" style="height:230px"><canvas id="cPie" role="img" aria-label="Branch share pie chart"></canvas></div>
-    </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">ยอดขายจริง vs เป้าหมายรายเดือน (Jan–Apr 2026)</div>
+      <div class="legend" id="legMain"></div>
+      <div class="chart-wrap" style="height:230px"><canvas id="cMain" role="img" aria-label="Monthly sales vs target"></canvas></div></div>
+    <div class="card"><div class="card-title">สัดส่วนยอดขายรายสาขา Jan–Apr 2026</div>
+      <div class="chart-wrap" style="height:230px"><canvas id="cPie" role="img" aria-label="Branch share"></canvas></div></div>
   </div>
-
-  <div class="card">
-    <div class="card-title">Trend ยอดขายรายสาขา — Dec 2025 ถึง Dec 2026</div>
-    <div class="legend" id="leg-trend"></div>
-    <div class="chart-wrap" style="height:260px"><canvas id="cTrend" role="img" aria-label="Branch trend line chart"></canvas></div>
-  </div>
-
+  <div class="card"><div class="card-title">Trend ยอดขายรายสาขา — Jan 2026 ถึง Dec 2026</div>
+    <div class="legend" id="legTrend"></div>
+    <div class="chart-wrap" style="height:250px"><canvas id="cTrend" role="img" aria-label="Branch trend"></canvas></div></div>
 </div>
 
-<!-- ════════════════════════════ BRANCHES ════════════════════ -->
+<!-- ═══════════ BRANCHES ═══════════ -->
 <div id="panel-branches" class="panel">
-
-  <div class="month-sel-row">
-    <span style="font-size:13px;font-weight:700;color:var(--muted)">เลือกเดือน:</span>
-    <div class="pill-group" id="monthPills"></div>
+  <div class="pill-row" id="monthPills"></div>
+  <div class="grid2" style="align-items:start">
+    <div class="card"><div class="card-title" id="barTitle">ยอดขายรายสาขา</div>
+      <div class="bar-rows" id="barRows"></div></div>
+    <div class="card"><div class="card-title">% vs เป้าแต่ละสาขา</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="cPct" role="img" aria-label="Branch pct"></canvas></div></div>
   </div>
-
-  <div class="grid-2" style="align-items:start">
-    <div class="card">
-      <div class="card-title" id="barTitle">ยอดขายรายสาขา</div>
-      <div class="bar-rows" id="barRows"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">% vs เป้า (สาขา)</div>
-      <div class="chart-wrap" style="height:260px"><canvas id="cPct" role="img" aria-label="Branch percent vs target"></canvas></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">ตารางยอดขายรายสาขา × ทุกเดือน</div>
-    <div class="tbl-wrap">
-      <table class="data-table" id="branchTable"></table>
-    </div>
-  </div>
-
+  <div class="card"><div class="card-title">ตารางยอดขายรายสาขา × ทุกเดือน</div>
+    <div class="tbl-wrap"><table class="tbl" id="branchTbl"></table></div></div>
 </div>
 
-<!-- ════════════════════════════ PROMO ════════════════════════ -->
+<!-- ═══════════ PROMO ANALYSIS ═══════════ -->
 <div id="panel-promo" class="panel">
+  <div class="card">
+    <div class="card-title">📊 ประสิทธิภาพโปรโมชั่น — ข้อมูลจริง 27 สัปดาห์ (Oct 2025 – Apr 2026)</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">เรียงตาม avg ยอดขาย/สัปดาห์ · 🏆 = Best Promo ของสาขา · เลือกสาขาเพื่อดูรายละเอียด</p>
+    <div class="pill-row" id="promoBranchPills"></div>
+    <div id="promoHistContent"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📈 Trend ยอดขายรายสัปดาห์ตามโปรโมชั่น (27 สัปดาห์)</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:700;color:var(--muted)">สาขา:</span>
+      <select class="sel" id="promoTrendBranch" onchange="renderPromoTrend()">
+        <option value="all">รวมทุกสาขา</option>
+      </select>
+    </div>
+    <div class="legend" id="legPromo"></div>
+    <div class="chart-wrap" style="height:260px"><canvas id="cPromo" role="img" aria-label="Weekly promo trend"></canvas></div>
+  </div>
+</div>
 
-  <div class="card" style="background:linear-gradient(135deg,#EEF7FF,#E8F5E9);border-color:#C3E6CB">
-    <div class="card-title" style="color:var(--dark)">🎯 แนะนำโปรโมชั่นสัปดาห์ถัดไป</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">กรอกยอดขายจริง 7 วัน และ 5 วัน → ระบบจะแนะนำโปรที่เหมาะสมสำหรับสัปดาห์ถัดไปให้ทุกสาขา</p>
-
-    <div class="month-sel-row" style="margin-bottom:14px">
-      <span style="font-size:12px;font-weight:700;color:var(--muted)">เดือนปัจจุบัน:</span>
-      <select class="sel" id="promoMonth" onchange="renderPromoCards()"></select>
-      <span style="font-size:12px;color:var(--muted)">สัปดาห์ที่:</span>
-      <select class="sel" id="promoWeek" onchange="renderPromoCards()">
+<!-- ═══════════ PLANNER ═══════════ -->
+<div id="panel-planner" class="panel">
+  <div class="card" style="background:linear-gradient(135deg,#F0F7FF,#E8F5EE);border-color:#A7D7A9">
+    <div class="card-title" style="color:var(--navy)">🎯 วางแผนโปรสัปดาห์ถัดไป — กรอกยอดสัปดาห์นี้เพื่อดูคำแนะนำ</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">อ้างอิงจากข้อมูลจริง 27 สัปดาห์ · คำแนะนำแยก 7 วัน และ 5 วัน · เปลี่ยนโปรได้ทุกสัปดาห์</p>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:700;color:var(--muted)">เดือน:</span>
+      <select class="sel" id="planMonth" onchange="renderPlannerCards()">
+        <option value="0">Jan 2026</option><option value="1">Feb 2026</option>
+        <option value="2">Mar 2026</option><option value="3" selected>Apr 2026</option>
+        <option value="4">May 2026</option><option value="5">Jun 2026</option>
+        <option value="6">Jul 2026</option><option value="7">Aug 2026</option>
+        <option value="8">Sep 2026</option><option value="9">Oct 2026</option>
+        <option value="10">Nov 2026</option><option value="11">Dec 2026</option>
+      </select>
+      <span style="font-size:11px;font-weight:700;color:var(--muted)">สัปดาห์ที่:</span>
+      <select class="sel" id="planWeek">
         <option value="1">1</option><option value="2">2</option>
         <option value="3">3</option><option value="4" selected>4</option>
       </select>
     </div>
-
-    <div class="promo-input-grid" id="promoCards"></div>
-
-    <div style="text-align:center;margin-top:8px">
-      <button class="btn btn-primary" onclick="analyzeAll()" style="padding:10px 28px;font-size:13px">วิเคราะห์ทุกสาขา →</button>
+    <div class="promo-grid" id="plannerCards"></div>
+    <div style="text-align:center;margin-top:4px">
+      <button class="btn btn-teal" style="padding:9px 26px;font-size:12px" onclick="analyzeAllBranches()">วิเคราะห์ทุกสาขา →</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">📈 Trend ยอดขายรายสัปดาห์ (Oct 25 – Jan 26)</div>
-    <div class="legend" id="leg-promo"></div>
-    <div class="chart-wrap" style="height:240px"><canvas id="cPromo" role="img" aria-label="Weekly promo trend"></canvas></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📋 ประสิทธิภาพโปรโมชั่น — ข้อมูลย้อนหลัง</div>
+    <div class="card-title">📋 คู่มือเลือกโปร — ระดับและผลที่คาดหวัง</div>
     <div class="tbl-wrap">
-      <table class="data-table" id="promoHistTable"></table>
+      <table class="tbl">
+        <thead><tr><th>ระดับ</th><th>ชื่อโปร</th><th>avg/สัปดาห์</th><th>เหมาะกับ</th><th>ข้อดี</th><th>ข้อเสีย</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag t-fail">🔴 แรง</span></td><td>2 Dis+Buy 800 Free Gift</td><td>฿15,000–30,000</td><td>ยอดต่ำวิกฤต</td><td style="color:var(--teal)">ดึงลูกค้าสูงสุด</td><td style="color:var(--red)">กำไร/ชิ้นลด</td></tr>
+          <tr><td><span class="tag t-fail">🔴 แรง</span></td><td>Buy 800 Free Bag/Gift</td><td>฿10,000–17,000</td><td>ยอดต่ำกว่าเป้า</td><td style="color:var(--teal)">เพิ่ม basket size</td><td style="color:var(--red)">ต้องมีของแถม</td></tr>
+          <tr><td><span class="tag t-warn">🟡 กลาง</span></td><td>2 PC Dis 10% / 2PC</td><td>฿8,000–19,000</td><td>ยอดปานกลาง</td><td style="color:var(--teal)">สมดุลดี</td><td style="color:var(--red)">ต้องซื้อ 2 ชิ้น</td></tr>
+          <tr><td><span class="tag t-warn">🟡 กลาง</span></td><td>Dis 50.-</td><td>฿3,000–9,000</td><td>ต้องการกระตุ้น</td><td style="color:var(--teal)">ดึงลูกค้าใหม่</td><td style="color:var(--red)">มาร์จิ้นลด</td></tr>
+          <tr><td><span class="tag t-ok">🟢 เบา</span></td><td>Dis 10%</td><td>฿5,000–19,000</td><td>ยอดดี รักษาฐาน</td><td style="color:var(--teal)">รักษากำไรได้ดี</td><td style="color:var(--red)">ยอดอาจไม่โต</td></tr>
+          <tr><td><span class="tag t-neu">⚪ ไม่มีโปร</span></td><td>ไม่มีโปร</td><td>ขึ้นกับสาขา</td><td>Traffic สูงอยู่แล้ว</td><td style="color:var(--teal)">ไม่เสียกำไร</td><td style="color:var(--red)">ยอดอาจลด</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
-
 </div>
 
-<!-- ════════════════════════════ SETUP ════════════════════════ -->
+<!-- ═══════════ SETUP ═══════════ -->
 <div id="panel-setup" class="panel">
   <div class="setup-card">
     <div class="setup-note">
-      <strong>วิธีเชื่อมกับ Google Sheets (real-time data):</strong><br>
-      1. อัปโหลด Excel ไป Google Drive → เปิดด้วย Sheets<br>
-      2. Extensions → Apps Script → วางโค้ด AppScript.gs<br>
+      <strong>เชื่อม Google Sheets (real-time):</strong><br>
+      1. อัปโหลด Excel → เปิดด้วย Google Sheets<br>
+      2. Extensions → Apps Script → วาง AppScript.gs<br>
       3. Deploy → Web App → copy URL<br>
-      4. วาง URL ด้านล่าง → บันทึก → กด Refresh<br><br>
-      <strong>ถ้าไม่มี URL:</strong> เว็บจะใช้ข้อมูลที่ฝังไว้ (embedded data จากไฟล์นี้)
+      4. วาง URL ด้านล่าง → บันทึก → Refresh<br><br>
+      ถ้าไม่มี URL: เว็บจะใช้ข้อมูล embedded (มีถึง Apr 2026)
     </div>
-    <div class="form-group">
-      <label>Apps Script Web App URL</label>
-      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/AKfycbydC15Cnjmk7E3bYkBQPirHXW1zB63uQEhdN8nuJYtMQbEQrFSDWlQ4i7k33lR6wJwvVw/exec">
-    </div>
-    <button class="btn btn-primary" style="width:100%;padding:10px" onclick="saveAndLoad()">บันทึกและโหลดข้อมูล</button>
-    <div style="margin-top:12px;padding:12px;background:#F8F9FA;border-radius:8px;font-size:12px;color:var(--muted)">
-      <strong>สถานะ:</strong> <span id="setupStatus">-</span>
-    </div>
+    <div class="fg"><label>Apps Script URL</label>
+      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/AKfycbydC15Cnjmk7E3bYkBQPirHXW1zB63uQEhdN8nuJYtMQbEQrFSDWlQ4i7k33lR6wJwvVw/exec"></div>
+    <button class="btn btn-teal" style="width:100%;padding:10px" onclick="saveAndLoad()">บันทึกและโหลด</button>
+    <div style="margin-top:12px;padding:10px;background:#F8F9FA;border-radius:7px;font-size:11px;color:var(--muted)">
+      สถานะ: <span id="setupSt">—</span></div>
   </div>
 </div>
 
@@ -321,470 +310,490 @@ select.sel{padding:7px 12px;border:1px solid var(--border);border-radius:8px;fon
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  DATA
+// DATA
 // ═══════════════════════════════════════════════════════════
-const MONTHS = ['Dec 2025','Jan 2026','Feb 2026','Mar 2026','Apr 2026',
-                'May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026',
-                'Oct 2026','Nov 2026','Dec 2026'];
-const MONTHS_SHORT = ['Dec25','Jan26','Feb26','Mar26','Apr26','May26',
-                      'Jun26','Jul26','Aug26','Sep26','Oct26','Nov26','Dec26'];
-const BRANCHES = ['MB Siam','MB Westgate','MB Saraburi','Kim Fashion','ASAP',
-                  'Freak Siam','Frank Siam','Frank Emsphere'];
-const BRANCH_COLORS = ['#1E3A5F','#2E6DA4','#1D9E75','#E8A317','#D85A30','#7F77DD','#D4537E','#888780'];
-const TARGETS = [475000,435000,425000,445000,445000,445000,445000,445000,445000,445000,445000,445000,445000];
-const BRANCH_TARGETS = [
-  [80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000], // MB Siam
-  [35000,35000,35000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000], // MB Westgate
-  [40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000], // MB Saraburi
-  [35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000], // Kim Fashion
-  [75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000], // ASAP
-  [70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000], // Freak Siam
-  [20000,20000,30000,45000,45000,45000,45000,45000,45000,45000,45000,45000,45000], // Frank Siam
-  [60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000], // Frank Emsphere
+const MONTHS=['Jan 2026','Feb 2026','Mar 2026','Apr 2026','May 2026','Jun 2026',
+              'Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
+const BRANCHES=['MB Siam','MB Westgate','MB Saraburi','Kim Fashion','ASAP','Freak Siam','Frank Siam','Frank Emsphere'];
+const BCOLORS=['#1E3A5F','#2E6DA4','#1D9E75','#E8A317','#D85A30','#7F77DD','#D4537E','#888780'];
+const TARGETS=[435000,425000,445000,445000,445000,445000,445000,445000,445000,445000,445000,445000];
+const BTARGETS=[
+  [80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000,80000],
+  [35000,35000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000],
+  [40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000,40000],
+  [35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000,35000],
+  [75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000,75000],
+  [70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000,70000],
+  [20000,30000,45000,45000,45000,45000,45000,45000,45000,45000,45000,45000],
+  [60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000,60000],
 ];
-// monthly[monthIdx][branchIdx]
-const MONTHLY_SALES = [
-  [74494,40206,17267,20872,43513,67998,38710,55180], // Dec25
-  [54016,32388,11630,23140,45571,54937,32530,54850], // Jan26
-  [48384,19388,12028,29925,61139,42875,42660,61480], // Feb26
-  [66377,24542,13398,18622,59358,40403,40216,48439], // Mar26
-  [24863, 6858, 4041, 8784,22656, 7821,10485,17334], // Apr26 (MTD)
+const MONTHLY=[
+  [54016,32388,11630,23140,45571,54937,32530,54850],
+  [48384,19388,12028,29925,61139,42875,42660,61480],
+  [66377,24542,13398,18622,59358,40403,40216,48439],
+  [24863,6858,4041,8784,22656,7821,10485,17334],
   [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
 ];
 
-const PROMO_WEEKS = ['03-09/10','10-16/10','17-23/10','24-30/10','31-6/11',
-                     '7-13/11','14-20/11','21-27/11','28-4/12','5-11/12','12-18/12','19-25/12','26-1/01'];
-const PROMO_TOTALS = [89872,78906,68877,65918,78531,78901,70009,71115,73979,91593,84040,90789,125896];
-const PROMO_HISTORY = [
-  {name:'MB Siam',    data:[14152,14022,12393,12548,10894,16876,16624,16985,11968,11792,11130,16920,30352]},
-  {name:'ASAP',       data:[11345,13974,11506,8160,7191,11817,11633,14931,10512,6221,10880,8800,12432]},
-  {name:'Freak Siam', data:[14571,11898,10530,8964,10638,12132,6957,6645,19132,15432,16028,11510,14708]},
-  {name:'Frank Emsphere',data:[16150,7510,8550,14200,12150,7420,9560,9000,3480,8590,14130,13830,17170]},
-  {name:'MB Westgate',data:[6320,9990,8685,6255,9864,5463,4642,5635,4260,10038,6762,10280,12876]},
-];
+const WEEKS=['03-09/10','10-16/10','17-23/10','24-30/10','31-6/11','7-13/11','14-20/11','21-27/11',
+  '28-4/12','5-11/12','12-18/12','19-25/12','26-1/01','2-8/01','9-15/01','16-20/01',
+  '23-29/01','30-05/02','06-12/02','13-19/02','20-26/02','27-05/03','06-12/03',
+  '13-19/03','20-26/03','27-02/04','3-9/04'];
+const WKMON=['Oct','Oct','Oct','Oct','Nov','Nov','Nov','Nov','Dec','Dec','Dec','Dec',
+  'Jan','Jan','Jan','Jan','Jan','Feb','Feb','Feb','Feb','Mar','Mar','Mar','Mar','Apr','Apr'];
 
-const PROMO_OPTIONS = {
-  'MB Siam':         [{name:'Dis 10%',7:13500,5:9600},{name:'2 PC Dis 10%',7:15800,5:11300},{name:'Buy 800 Free Gift',7:18200,5:13000},{name:'2 Dis 10%+Buy 800',7:23500,5:16800}],
-  'MB Westgate':     [{name:'Dis 10%',7:8200,5:5900},{name:'Dis 50.-',7:10200,5:7300},{name:'2 PC Dis 10%',7:9500,5:6800},{name:'2 PC Dis 15%',7:11000,5:7900}],
-  'MB Saraburi':     [{name:'ไม่มีโปร',7:4200,5:3000},{name:'2 PC Dis 10%',7:4800,5:3400},{name:'2 PC Dis 50.-',7:5500,5:3900},{name:'Buy 600 Free Gift',7:6200,5:4400}],
-  'Kim Fashion':     [{name:'Dis 10%',7:5200,5:3700},{name:'Dis 50.-',7:6800,5:4900},{name:'2 PC Dis 10%',7:7200,5:5200},{name:'2 PC+Free Bag',7:8500,5:6100}],
-  'ASAP':            [{name:'Dis 10%',7:11500,5:8200},{name:'2PC Dis 10%',7:13200,5:9400},{name:'Buy 800 Free Gift',7:15800,5:11300},{name:'2 PC+Free Gift',7:17000,5:12100}],
-  'Freak Siam':      [{name:'Dis 10%',7:12000,5:8600},{name:'2 PC Dis 10%',7:15200,5:10900},{name:'Buy 800 Free Gift',7:18500,5:13200},{name:'2 PC+Buy 800',7:22000,5:15700}],
-  'Frank Siam':      [{name:'ไม่มีโปร',7:7800,5:5600},{name:'Dis 10%',7:10200,5:7300},{name:'2 PC Dis 10%',7:12500,5:8900},{name:'Buy 800 Free Bag',7:14000,5:10000}],
-  'Frank Emsphere':  [{name:'ไม่มีโปร',7:12500,5:8900},{name:'Dis 10%',7:14200,5:10100},{name:'Buy 800 Free Bag',7:16800,5:12000},{name:'2 PC Dis 10%',7:17500,5:12500}],
+const PROMO_DATA={
+ 'MB Siam':[['2 PC Dis 10%',14152],['Dis 10%',14022],['Dis 10%',12393],['2 PC Dis 10%',12548],
+  ['2 PC Dis 10%',10894],['2 PC Dis 10%',16876],['2 PC Dis 10%',16624],['2 PC Dis 10%',16985],
+  ['2 PC Dis 10%',11968],['2 PC Dis 10%',11792],['Buy 800 Free Gift',11130],
+  ['2 Dis+Buy 800 Gift',16920],['2 Dis+Buy 800 Gift',30352],['2 Dis+Buy 800 Gift',12838],
+  ['2 PC Dis 10%',7810],['2 PC Dis 10%',8000],['2 PC Dis 10%',15916],['2 PC Dis 10%',11744],
+  ['2 PC Dis 10%',10935],['Dis 10%',13167],['Dis 10%',11227],['Dis 10%',17514],
+  ['Dis 10%',9544],['Dis 10%',18771],['Dis 10%',16389],['Dis 10%',15103],['Dis 10%',15409]],
+ 'MB Westgate':[['2 PC Dis 10%',6320],['Dis 10%',9990],['Dis 10%',8685],['Dis 10%',6255],
+  ['Dis 10%',9864],['Dis 10%',5463],['2 PC Dis 10%',4642],['2 PC Dis 10%',5635],
+  ['2 PC Dis 10%',4260],['2 PC Dis 10%',10038],['2 PC Dis 10%',6762],['2 PC Dis 10%',10280],
+  ['2 PC Dis 10%',12876],['2 PC Dis 10%',8900],['2 PC Dis 10%',7088],['2 PC Dis 10%',2560],
+  ['Dis 50.-',7760],['Dis 50.-',5340],['Dis 50.-',3470],['Dis 10%',5391],['Dis 10%',6264],
+  ['Dis 10%',9720],['Dis 10%',4266],['Dis 10%',4392],['2 PC Dis 10%',2870],['Dis 10%',8775],['Dis 10%',3168]],
+ 'MB Saraburi':[['ไม่มีโปร',11810],['ไม่มีโปร',4860],['ไม่มีโปร',3750],['2 PC Dis 10%',4340],
+  ['2 PC Dis 10%',4390],['2 PC Dis 10%',3868],['2 PC Dis 50.-',5650],['2 PC Dis 50.-',4080],
+  ['2 PC Dis 50.-',4360],['2 PC Dis 50.-',5510],['2 PC Dis 50.-',2370],['Dis 10%',5301],
+  ['Dis 10%',5716],['Dis 10%',3350],['2 PC Dis 50.-',1530],['2 PC Dis 50.-',1470],
+  ['2 PC Dis 50.-',1770],['2 PC Dis 50.-',2220],['Dis 10%',2569],['Dis 10%',2781],['Dis 10%',3726],
+  ['Dis 10%',4882],['Dis 10%',2979],['Dis 10%',1377],['Dis 10%',2358],['Dis 10%',3674],['Dis 10%',2979]],
+ 'Kim Fashion':[['Dis 10%',6493],['Dis 10%',7065],['Dis 10%',4878],['Dis 10%',4719],
+  ['Dis 10%',5753],['Dis 10%',4609],['Dis 10%',3987],['Dis 10%',2439],
+  ['Dis 50.-',1523],['Dis 50.-',6392],['Dis 50.-',5056],['Dis 10%',1909],
+  ['Dis 50.-',7832],['Dis 50.-',3682],['Dis 50.-',1607],['Dis 50.-',6131],
+  ['Dis 50.-',8542],['Dis 50.-',5439],['Dis 50.-',9093],['Dis 50.-',9402],['Dis 50.-',6178],
+  ['Dis 50.-',8056],['2 PC Dis 10%',5193],['2 PC Dis 10%',2515],['2 PC Dis 10%',4318],['2 PC Dis 10%',3215],['Dis 10%',5892]],
+ 'ASAP':[['Dis 10%',11345],['Dis 10%',13974],['Dis 10%',11506],['Dis 10%',8160],
+  ['Dis 10%',7191],['Dis 10%',11817],['Dis 10%',11633],['Dis 10%',14931],
+  ['2 PC Dis 10%',10512],['Dis 10%',6221],['Buy 800 Free Gift',10880],
+  ['2 Dis+Buy 800 Gift',8800],['2 Dis+Buy 800 Gift',12432],['2 Dis+Buy 800 Gift',13020],
+  ['2 Dis+Buy 800 Gift',8060],['2 Dis+Buy 800 Gift',7582],['2 Dis+Buy 800 Gift',12147],
+  ['2 Dis+Buy 800 Gift',8790],['2 PC Dis 10%',8732],['Dis 10%',19313],['Dis 10%',19126],
+  ['Dis 10%',14481],['2 PC Dis 10%',16445],['2 PC Dis 10%',14554],['2 PC Dis 10%',14232],['2 PC Dis 10%',10440],['Dis 10%',13491]],
+ 'Freak Siam':[['Dis 10%',14571],['Dis 10%',11898],['Dis 10%',10530],['Dis 10%',8964],
+  ['Dis 10%',10638],['Dis 10%',12132],['Dis 10%',6957],['Dis 10%',6645],
+  ['2 PC Dis 10%',19132],['2 PC Dis 10%',15432],['2 PC Dis 10%',16028],['2 PC Dis 10%',11510],
+  ['2 PC Dis 10%',14708],['2 PC Dis 10%',12493],['2 PC Dis 10%',10900],['2 PC Dis 10%',14558],
+  ['2 PC Dis 10%',10774],['2 PC Dis 10%',9662],['2 PC Dis 10%',9930],['2 PC Dis 10%',11584],
+  ['2 PC Dis 10%',14310],['2 PC Dis 10%',10311],['Dis 10%',6507],['Dis 10%',9225],
+  ['2 PC Dis 10%',10462],['Dis 10%',7992],['Dis 10%',5778]],
+ 'Frank Siam':[[null,0],[null,0],[null,0],[null,0],
+  ['ไม่มีโปร',9820],['ไม่มีโปร',10430],['Dis 10%',6174],['Dis 10%',4086],
+  ['ไม่มีโปร',8380],['ไม่มีโปร',10980],['ไม่มีโปร',6100],['ไม่มีโปร',9190],
+  ['Buy 800 Free Bag',10550],['Buy 800 Free Bag',9820],['Buy 800 Free Bag',5060],['Buy 800 Free Bag',5670],
+  ['Buy 800 Free Bag',8270],['Buy 800 Free Bag',6010],['Buy 800 Free Bag',7190],['Buy 800 Free Bag',12920],
+  ['ไม่มีโปร',12270],['ไม่มีโปร',13390],['ไม่มีโปร',13210],['ไม่มีโปร',9010],
+  ['ไม่มีโปร',4780],['Dis 10%',7812],['Dis 10%',8523]],
+ 'Frank Emsphere':[['ไม่มีโปร',16150],['ไม่มีโปร',7510],['ไม่มีโปร',8550],['ไม่มีโปร',14200],
+  ['ไม่มีโปร',12150],['ไม่มีโปร',7420],['ไม่มีโปร',9560],['ไม่มีโปร',9000],
+  ['ไม่มีโปร',3480],['ไม่มีโปร',8590],['ไม่มีโปร',14130],['ไม่มีโปร',13830],
+  ['Buy 800 Free Bag',17170],['Buy 800 Free Bag',12560],['Buy 800 Free Bag',12920],['Buy 800 Free Bag',9000],
+  ['Buy 800 Free Bag',11110],['Buy 800 Free Bag',16590],['Buy 800 Free Bag',15180],['Buy 800 Free Bag',17450],
+  ['ไม่มีโปร',13500],['ไม่มีโปร',6690],['Dis 10%',10791],['Dis 10%',11952],
+  ['Dis 10%',12627],['Dis 10%',12849],['Dis 10%',11016]],
 };
 
-let DATA = null, charts = {}, selectedMonth = 3;
+// compute promo stats
+function promoStats(branch){
+  const s={};
+  PROMO_DATA[branch].forEach(([p,v])=>{
+    if(!p||v===0)return;
+    if(!s[p]){s[p]={count:0,total:0,vals:[]};}
+    s[p].count++;s[p].total+=v;s[p].vals.push(v);
+  });
+  return Object.fromEntries(Object.entries(s).map(([k,v])=>[k,{...v,
+    avg:Math.round(v.total/v.count),max:Math.max(...v.vals),min:Math.min(...v.vals)}]));
+}
 
-// ═══════════════════════════════════════════════════════════
-//  DATA LOADING
-// ═══════════════════════════════════════════════════════════
-function setStatus(s){ const d=document.getElementById('statusDot'); d.className=''; d.className=s; }
+const ALL_STATS={};
+BRANCHES.forEach(b=>ALL_STATS[b]=promoStats(b));
+
+function bestPromo(branch){
+  const st=ALL_STATS[branch];
+  return Object.entries(st).sort((a,b)=>b[1].avg-a[1].avg)[0]||[null,null];
+}
+
+// ═══ LOAD ═══
+let charts={},selMonth=3;
+const fmt=v=>new Intl.NumberFormat('th-TH').format(Math.round(v));
+const pctN=(a,b)=>b>0?a/b*100:0;
+const totMonth=mi=>MONTHLY[mi].reduce((s,v)=>s+v,0);
+
+function setDot(s){const d=document.getElementById('statusDot');d.className='dot '+s;}
 
 async function loadData(){
-  setStatus('loading');
-  document.getElementById('loadMsg').textContent='กำลังโหลดข้อมูล...';
+  setDot('loading');document.getElementById('loadMsg').textContent='กำลังโหลด...';
   document.getElementById('loader').style.display='flex';
-
-  const url = localStorage.getItem('salesDashUrl')||'';
-
+  const url=localStorage.getItem('sdUrl')||'';
   if(typeof google!=='undefined'&&google.script){
-    google.script.run.withSuccessHandler(d=>{DATA=JSON.parse(d);done('ok','Google Sheets');})
-      .withFailureHandler(()=>useFallback()).getDashboardData();
-    return;
+    google.script.run.withSuccessHandler(d=>{const parsed=JSON.parse(d);mergeLiveData(parsed);done('ok','Google Sheets');})
+      .withFailureHandler(()=>{done('ok','Embedded');}).getDashboardData();return;
   }
   if(url&&url.includes('script.google.com')){
     try{const r=await fetch(url+'?action=getDashboardData');
-      if(r.ok){DATA=await r.json();done('ok','Apps Script');return;}}
-    catch(e){}
+      if(r.ok){const d=await r.json();mergeLiveData(d);done('ok','Apps Script Web App');return;}}catch(e){}
   }
-  useFallback();
+  done('ok','Embedded Data (มีถึง Apr 2026)');
 }
 
-function useFallback(){
-  DATA={months:MONTHS,branches:BRANCHES,monthly:MONTHLY_SALES,
-    promoWeeks:PROMO_WEEKS,promoTotals:PROMO_TOTALS,promoHistory:PROMO_HISTORY};
-  done('ok','Embedded Data (Apr 2026 ล่าสุด)');
+function mergeLiveData(d){
+  if(d&&d.monthly)d.monthly.forEach((row,mi)=>{if(mi<MONTHLY.length)MONTHLY[mi]=row;});
 }
 
-function done(status, src){
-  setStatus(status);
-  document.getElementById('loader').style.display='none';
-  document.getElementById('setupStatus').textContent=`เชื่อมต่อจาก: ${src} · ${new Date().toLocaleTimeString('th-TH')}`;
+function done(st,src){
+  setDot(st);document.getElementById('loader').style.display='none';
+  document.getElementById('setupSt').textContent=`${src} · ${new Date().toLocaleTimeString('th-TH')}`;
   renderAll();
 }
 
-// ═══════════════════════════════════════════════════════════
-//  RENDER ALL
-// ═══════════════════════════════════════════════════════════
 function renderAll(){
-  renderKPI(); renderOKR(); renderInsights();
-  renderMainChart(); renderPieChart(); renderTrendChart();
-  buildMonthPills(); renderBranchBars(); renderPctChart(); renderBranchTable();
-  buildPromoMonthSel(); renderPromoCards(); renderPromoChart(); renderPromoHistTable();
+  renderKPI();renderOKR();renderInsights();
+  renderMainChart();renderPieChart();renderTrendChart();
+  buildMonthPills();renderBranchBars();renderPctChart();renderBranchTable();
+  buildPromoUI();renderPromoHistBranch(0);renderPromoTrend();
+  renderPlannerCards();
 }
 
-const fmt = v => new Intl.NumberFormat('th-TH').format(Math.round(v));
-const pctStr = (a,b) => b>0?(a/b*100).toFixed(1)+'%':'—';
-const pctNum = (a,b) => b>0?(a/b*100):0;
-const totalMonth = mi => MONTHLY_SALES[mi].reduce((s,v)=>s+v,0);
-
-// ═══════════════════════════════════════════════════════════
-//  KPI ROW
-// ═══════════════════════════════════════════════════════════
+// ═══ KPI ═══
 function renderKPI(){
-  const el=document.getElementById('kpiRow');
-  let html='';
-  MONTHS.forEach((m,mi)=>{
-    const total=totalMonth(mi), tgt=TARGETS[mi];
-    const p=pctNum(total,tgt);
-    const cls=total===0?'neutral':p>=90?'ok':p>=70?'warn':'fail';
-    const badgeCls=total===0?'badge-neu':p>=90?'badge-ok':p>=70?'badge-warn':'badge-fail';
-    const badgeTxt=total===0?'Pending':p>=90?'✓ Pass':p>=70?'⚠ Fair':'✗ Low';
-    html+=`<div class="kpi ${cls}">
-      <div class="kpi-lbl">${m}</div>
-      <div class="kpi-val">${total===0?'—':'฿'+fmt(total)}</div>
+  document.getElementById('kpiGrid').innerHTML=MONTHS.map((m,mi)=>{
+    const tot=totMonth(mi),tgt=TARGETS[mi],p=pctN(tot,tgt);
+    const cls=tot===0?'pend':p>=90?'ok':p>=70?'warn':'fail';
+    const bc=tot===0?'b-pend':p>=90?'b-ok':p>=70?'b-warn':'b-fail';
+    const bTxt=tot===0?'รอข้อมูล':p.toFixed(1)+'%'+(p>=90?' ✓':p>=70?' ⚠':' ✗');
+    return `<div class="kpi ${cls}"><div class="kpi-lbl">${m}</div>
+      <div class="kpi-val">${tot?'฿'+fmt(tot):'—'}</div>
       <div class="kpi-sub">เป้า ฿${fmt(tgt)}</div>
-      <span class="kpi-badge ${badgeCls}">${total===0?'รอข้อมูล':p.toFixed(1)+'% '+badgeTxt}</span>
-    </div>`;
-  });
-  el.innerHTML=html;
+      <span class="badge ${bc}">${bTxt}</span></div>`;
+  }).join('');
 }
 
-// ═══════════════════════════════════════════════════════════
-//  OKR BANNER
-// ═══════════════════════════════════════════════════════════
+// ═══ OKR ═══
 function renderOKR(){
-  let pills='', fails=0;
-  MONTHS.slice(0,5).forEach((m,mi)=>{
-    const t=totalMonth(mi), tgt=TARGETS[mi];
-    if(t===0)return;
-    const p=pctNum(t,tgt); const ok=p>=90; if(!ok)fails++;
+  let pills='',fails=0;
+  MONTHS.slice(0,4).forEach((m,mi)=>{
+    const tot=totMonth(mi),tgt=TARGETS[mi];if(!tot)return;
+    const p=pctN(tot,tgt),ok=p>=90;if(!ok)fails++;
     pills+=`<span class="okr-pill ${ok?'pass':''}">${m}: ${p.toFixed(1)}% ${ok?'✓':'✗'}</span>`;
   });
   document.getElementById('okrPills').innerHTML=pills;
-  document.getElementById('okrSub').textContent=fails>0?`ยังไม่ผ่าน ${fails} เดือน — ต้องทำให้ได้ ≥ 90% ทุกเดือน`:'ผ่านทุกเดือน!';
+  document.getElementById('okrSub').textContent=fails?`ยังไม่ผ่าน ${fails} เดือน — เป้า ≥ 90%`:'ผ่านทุกเดือน!';
 }
 
-// ═══════════════════════════════════════════════════════════
-//  INSIGHTS
-// ═══════════════════════════════════════════════════════════
+// ═══ INSIGHTS ═══
 function renderInsights(){
-  const el=document.getElementById('insightGrid');
-  // Find best/worst branch from Jan-Apr
-  const jan_apr=[1,2,3,4];
-  const branchTotals=BRANCHES.map((b,bi)=>jan_apr.map(mi=>MONTHLY_SALES[mi][bi]).reduce((s,v)=>s+v,0));
-  const bestBi=branchTotals.indexOf(Math.max(...branchTotals));
-  const worstBi=branchTotals.indexOf(Math.min(...branchTotals));
-  const janToApr=totalMonth(1)+totalMonth(2)+totalMonth(3)+totalMonth(4);
-  const tgtJanApr=TARGETS.slice(1,5).reduce((s,v)=>s+v,0);
-  const avgPct=(janToApr/tgtJanApr*100).toFixed(1);
-
-  const insights=[
-    {cls:'insight-ok', ico:'🏆', title:`สาขาดีสุด: ${BRANCHES[bestBi]}`, body:`ยอดรวม Jan–Apr ฿${fmt(branchTotals[bestBi])} — Top performer ทุกเดือน`},
-    {cls:'insight-fail',ico:'⚠️', title:`สาขาต้องปรับ: ${BRANCHES[worstBi]}`, body:`ยอดรวม Jan–Apr ฿${fmt(branchTotals[worstBi])} — ต้องการโปรกระตุ้นและ support`},
-    {cls:'insight-warn', ico:'📉', title:`OKR Jan–Apr: ${avgPct}%`, body:`ยอดรวม ฿${fmt(janToApr)} จากเป้า ฿${fmt(tgtJanApr)} — ยังต้องเร่งทุกสาขา`},
-    {cls:'', ico:'💡', title:'โปรที่ดีที่สุด: 2 Dis 10%+Buy 800', body:'MB Siam ทำยอดสูงสุด ฿30,352/wk (วีค 26-1/01) ด้วยโปรนี้'},
+  const bTots=BRANCHES.map((_,bi)=>[0,1,2,3].map(mi=>MONTHLY[mi][bi]).reduce((s,v)=>s+v,0));
+  const best=bTots.indexOf(Math.max(...bTots));
+  const worst=bTots.indexOf(Math.min(...bTots));
+  const [bestP,bestSt]=bestPromo('MB Siam');
+  const ins=[
+    {cls:'ok',ico:'🏆',ttl:`สาขาดีสุด: ${BRANCHES[best]}`,body:`ยอดรวม Jan–Apr ฿${fmt(bTots[best])} — Top ทุกเดือน`},
+    {cls:'fail',ico:'⚠️',ttl:`สาขาต้องเร่ง: ${BRANCHES[worst]}`,body:`ยอดรวม Jan–Apr ฿${fmt(bTots[worst])} — ต้องโปรแรง`},
+    {cls:'warn',ico:'📊',ttl:'Best Promo: 2 Dis+Buy 800',body:'MB Siam avg ฿20,037/สัปดาห์ — สูงสุดในทุกโปร'},
+    {cls:'',ico:'💡',ttl:'Freak Siam: 2 PC Dis 10% ดีสุด',body:'avg ฿12,952/wk เหนือกว่า Dis 10% ถึง 39%'},
   ];
-  el.innerHTML=insights.map(i=>`<div class="insight ${i.cls}"><div class="insight-ico">${i.ico}</div><div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div>`).join('');
+  document.getElementById('insightGrid').innerHTML=ins.map(i=>`<div class="insight ${i.cls}">
+    <div class="insight-ico">${i.ico}</div><div class="insight-ttl">${i.ttl}</div>
+    <div class="insight-body">${i.body}</div></div>`).join('');
 }
 
-// ═══════════════════════════════════════════════════════════
-//  CHARTS — OVERVIEW
-// ═══════════════════════════════════════════════════════════
+// ═══ CHARTS ═══
 function renderMainChart(){
   if(charts.main)charts.main.destroy();
-  const hasData=MONTHS.map((_,i)=>totalMonth(i)>0);
-  const labels=MONTHS.filter((_,i)=>hasData[i]);
-  const actuals=MONTHLY_SALES.filter((_,i)=>hasData[i]).map(m=>m.reduce((s,v)=>s+v,0));
-  const targets=TARGETS.filter((_,i)=>hasData[i]);
-  document.getElementById('leg-main').innerHTML=`
-    <div class="leg-item"><div class="leg-dot" style="background:#2E6DA4"></div>ยอดจริง</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#CBD5E1"></div>เป้าหมาย</div>`;
+  const has=MONTHS.map((_,i)=>totMonth(i)>0);
+  const lbs=MONTHS.filter((_,i)=>has[i]).slice(0,6);
+  const acts=MONTHLY.filter((_,i)=>has[i]).slice(0,6).map(m=>m.reduce((s,v)=>s+v,0));
+  const tgts=TARGETS.filter((_,i)=>has[i]).slice(0,6);
+  document.getElementById('legMain').innerHTML=`<div class="leg"><div class="leg-dot" style="background:#2E6DA4"></div>ยอดจริง</div><div class="leg"><div class="leg-dot" style="background:#CBD5E1"></div>เป้าหมาย</div>`;
   charts.main=new Chart(document.getElementById('cMain'),{type:'bar',
-    data:{labels,datasets:[
-      {label:'ยอดจริง',data:actuals,backgroundColor:'#2E6DA4',borderRadius:5},
-      {label:'เป้า',data:targets,backgroundColor:'#CBD5E1',borderRadius:5}
-    ]},
+    data:{labels:lbs,datasets:[
+      {label:'ยอดจริง',data:acts,backgroundColor:'#2E6DA4',borderRadius:5},
+      {label:'เป้า',data:tgts,backgroundColor:'#CBD5E1',borderRadius:5}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.raw)}}},
-      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10}}}}}});
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},
+        x:{ticks:{autoSkip:false}}}}});
 }
 
 function renderPieChart(){
   if(charts.pie)charts.pie.destroy();
-  const totals=BRANCHES.map((_,bi)=>[1,2,3,4].map(mi=>MONTHLY_SALES[mi][bi]).reduce((s,v)=>s+v,0));
+  const tots=BRANCHES.map((_,bi)=>[0,1,2,3].map(mi=>MONTHLY[mi][bi]).reduce((s,v)=>s+v,0));
   charts.pie=new Chart(document.getElementById('cPie'),{type:'doughnut',
-    data:{labels:BRANCHES,datasets:[{data:totals,backgroundColor:BRANCH_COLORS,borderWidth:2,borderColor:'#fff'}]},
+    data:{labels:BRANCHES,datasets:[{data:tots,backgroundColor:BCOLORS,borderWidth:2,borderColor:'#fff'}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
-      plugins:{legend:{position:'right',labels:{font:{size:10},padding:8,usePointStyle:true}},
+      plugins:{legend:{position:'right',labels:{font:{size:9},padding:6,usePointStyle:true}},
         tooltip:{callbacks:{label:c=>c.label+': ฿'+fmt(c.raw)}}}}});
 }
 
 function renderTrendChart(){
   if(charts.trend)charts.trend.destroy();
-  const hasData=MONTHS.map((_,i)=>totalMonth(i)>0);
-  const labels=MONTHS.filter((_,i)=>hasData[i]);
-  document.getElementById('leg-trend').innerHTML=BRANCHES.map((b,i)=>
-    `<div class="leg-item"><div class="leg-dot" style="background:${BRANCH_COLORS[i]}"></div>${b}</div>`).join('');
+  const has=MONTHS.map((_,i)=>totMonth(i)>0);
+  const lbs=MONTHS.filter((_,i)=>has[i]);
+  document.getElementById('legTrend').innerHTML=BRANCHES.map((b,i)=>`<div class="leg"><div class="leg-dot" style="background:${BCOLORS[i]}"></div>${b}</div>`).join('');
   charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',
-    data:{labels,datasets:BRANCHES.map((b,i)=>({
-      label:b,data:MONTHLY_SALES.filter((_,mi)=>hasData[mi]).map(m=>m[i]),
-      borderColor:BRANCH_COLORS[i],backgroundColor:BRANCH_COLORS[i]+'18',
-      tension:.3,pointRadius:4,borderWidth:2,fill:false,
-      borderDash:i>4?[5,3]:[]
-    }))},
+    data:{labels:lbs,datasets:BRANCHES.map((b,i)=>({
+      label:b,data:MONTHLY.filter((_,mi)=>has[mi]).map(m=>m[i]),
+      borderColor:BCOLORS[i],backgroundColor:BCOLORS[i]+'18',tension:.3,pointRadius:4,borderWidth:2}))},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},
       scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},
-        x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10}}}}}});
+        x:{ticks:{autoSkip:false,maxRotation:45,font:{size:9}}}}}});
 }
 
-// ═══════════════════════════════════════════════════════════
-//  BRANCHES TAB
-// ═══════════════════════════════════════════════════════════
+// ═══ BRANCHES ═══
 function buildMonthPills(){
-  const el=document.getElementById('monthPills');
-  el.innerHTML=MONTHS.map((m,i)=>{
-    const hasD=totalMonth(i)>0;
-    return `<button class="pill ${i===selectedMonth?'active':''} ${!hasD?'disabled':''}" 
-      onclick="selectMonth(${i})" ${!hasD?'title="ยังไม่มีข้อมูล"':''} style="${!hasD?'opacity:.4;cursor:default':''}">${m}</button>`;
+  document.getElementById('monthPills').innerHTML=MONTHS.map((m,i)=>{
+    const has=totMonth(i)>0;
+    return `<button class="pill ${i===selMonth?'active':''} ${!has?'dimmed':''}" 
+      onclick="${has?'selMo('+i+')':''}'">${m}${!has?' 🔒':''}</button>`;
   }).join('');
 }
 
-function selectMonth(mi){
-  if(totalMonth(mi)===0)return;
-  selectedMonth=mi;
-  buildMonthPills();
-  renderBranchBars();
-  renderPctChart();
-}
+function selMo(i){selMonth=i;buildMonthPills();renderBranchBars();renderPctChart();}
 
 function renderBranchBars(){
-  const vals=MONTHLY_SALES[selectedMonth];
-  const tgts=BRANCH_TARGETS.map(t=>t[selectedMonth]);
+  const vals=MONTHLY[selMonth],tgts=BTARGETS.map(t=>t[selMonth]);
   const maxV=Math.max(...vals);
-  const prevVals=selectedMonth>0?MONTHLY_SALES[selectedMonth-1]:null;
-  const sorted=BRANCHES.map((b,i)=>({b,i,v:vals[i],tgt:tgts[i]})).sort((a,x)=>x.v-a.v);
-
-  document.getElementById('barTitle').textContent=`ยอดขายรายสาขา — ${MONTHS[selectedMonth]}`;
-  document.getElementById('barRows').innerHTML=sorted.map(({b,i,v,tgt})=>{
-    const p=pctNum(v,tgt);
+  const prev=selMonth>0?MONTHLY[selMonth-1]:null;
+  const sorted=BRANCHES.map((b,i)=>({b,i,v:vals[i],t:tgts[i]})).sort((a,x)=>x.v-a.v);
+  document.getElementById('barTitle').textContent=`ยอดขายรายสาขา — ${MONTHS[selMonth]}`;
+  document.getElementById('barRows').innerHTML=sorted.map(({b,i,v,t})=>{
+    const p=pctN(v,t);
     const col=p>=90?'var(--teal)':p>=70?'var(--warn)':'var(--red)';
-    const barW=maxV>0?Math.round(v/maxV*100):0;
-    const prev=prevVals?prevVals[i]:null;
-    const diff=prev!=null?v-prev:0;
-    const trendHtml=prev!=null&&prev>0?`<span class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'}${fmt(Math.abs(diff))}</span>`:'';
-    return `<div class="brow">
-      <div class="brow-name">${b}</div>
-      <div class="brow-track"><div class="brow-fill" style="width:${barW}%;background:${col}">
-        <span>${p.toFixed(0)}%</span></div></div>
-      <div class="brow-val">฿${fmt(v)}</div>
-      <div class="brow-trend">${trendHtml}</div>
-    </div>`;
+    const bw=maxV>0?Math.round(v/maxV*100):0;
+    const prv=prev?prev[i]:null;
+    const diff=prv!=null?v-prv:0;
+    const trd=prv&&prv>0?`<span class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'}${fmt(Math.abs(diff))}</span>`:'';
+    return `<div class="brow"><div class="brow-name">${b}</div>
+      <div class="brow-track"><div class="brow-fill" style="width:${bw}%;background:${col}"><span>${p.toFixed(0)}%</span></div></div>
+      <div class="brow-num">฿${fmt(v)}</div><div class="brow-trend">${trd}</div></div>`;
   }).join('');
 }
 
 function renderPctChart(){
   if(charts.pct)charts.pct.destroy();
-  const vals=MONTHLY_SALES[selectedMonth];
-  const tgts=BRANCH_TARGETS.map(t=>t[selectedMonth]);
-  const pcts=BRANCHES.map((_,bi)=>pctNum(vals[bi],tgts[bi]));
+  const vals=MONTHLY[selMonth],tgts=BTARGETS.map(t=>t[selMonth]);
+  const pcts=BRANCHES.map((_,bi)=>pctN(vals[bi],tgts[bi]));
   const cols=pcts.map(p=>p>=90?'#1D9E75':p>=70?'#E8A317':'#D85A30');
   charts.pct=new Chart(document.getElementById('cPct'),{type:'bar',
-    data:{labels:BRANCHES,datasets:[{data:pcts,backgroundColor:cols,borderRadius:5}]},
+    data:{labels:BRANCHES,datasets:[{data:pcts,backgroundColor:cols,borderRadius:4}]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+'%'}}},
-      scales:{x:{min:0,max:130,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},
-        y:{ticks:{font:{size:11}}}}}});
+      scales:{x:{min:0,max:130,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{font:{size:10}}}}}});
 }
 
 function renderBranchTable(){
-  const hasData=MONTHS.map((_,i)=>totalMonth(i)>0);
-  const visMonths=MONTHS.map((m,i)=>({m,i})).filter(({i})=>hasData[i]);
-  let html=`<thead><tr><th>สาขา</th>${visMonths.map(({m})=>`<th>${m}</th>`).join('')}<th>รวม (มีข้อมูล)</th><th>% เป้า</th><th>Trend</th></tr></thead><tbody>`;
+  const has=MONTHS.map((_,i)=>totMonth(i)>0);
+  const vis=MONTHS.map((m,i)=>({m,i})).filter(({i})=>has[i]);
+  let html=`<thead><tr><th>สาขา</th>${vis.map(({m})=>`<th>${m}</th>`).join('')}<th>รวม</th><th>% เป้า</th><th>Trend</th></tr></thead><tbody>`;
   BRANCHES.forEach((b,bi)=>{
-    const vals=visMonths.map(({i})=>MONTHLY_SALES[i][bi]);
-    const total=vals.reduce((s,v)=>s+v,0);
-    const tgtSum=visMonths.map(({i})=>BRANCH_TARGETS[bi][i]).reduce((s,v)=>s+v,0);
-    const p=pctNum(total,tgtSum);
-    const j=vals[1]||0, l=vals[vals.length-1]||vals[0]||0;
+    const vals=vis.map(({i})=>MONTHLY[i][bi]);
+    const tot=vals.reduce((s,v)=>s+v,0);
+    const tgt=vis.map(({i})=>BTARGETS[bi][i]).reduce((s,v)=>s+v,0);
+    const p=pctN(tot,tgt);
+    const j=vals[0]||0,l=vals[vals.length-1]||0;
     html+=`<tr><td>${b}</td>${vals.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
-      <td><strong>฿${fmt(total)}</strong></td>
-      <td><span class="tag ${p>=90?'tag-ok':p>=70?'tag-warn':'tag-fail'}">${p.toFixed(1)}%</span></td>
-      <td><span class="${l>j?'up':'dn'}">${l>j?'↑ Up':'↓ Down'}</span></td></tr>`;
+      <td><strong>฿${fmt(tot)}</strong></td>
+      <td><span class="tag ${p>=90?'t-ok':p>=70?'t-warn':'t-fail'}">${p.toFixed(1)}%</span></td>
+      <td class="${l>j?'up':'dn'}">${l>j?'↑ Up':'↓ Down'}</td></tr>`;
   });
-  const totals=visMonths.map(({i})=>totalMonth(i));
-  const grandTotal=totals.reduce((s,v)=>s+v,0);
-  const grandTgt=visMonths.map(({i})=>TARGETS[i]).reduce((s,v)=>s+v,0);
-  html+=`</tbody><tfoot><tr><td>TOTAL</td>${totals.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
-    <td>฿${fmt(grandTotal)}</td><td>${pctStr(grandTotal,grandTgt)}</td><td></td></tr></tfoot>`;
-  document.getElementById('branchTable').innerHTML=html;
+  const tots=vis.map(({i})=>totMonth(i));
+  const grandT=tots.reduce((s,v)=>s+v,0),grandTgt=vis.map(({i})=>TARGETS[i]).reduce((s,v)=>s+v,0);
+  html+=`</tbody><tfoot><tr><td>TOTAL</td>${tots.map(v=>`<td>฿${fmt(v)}</td>`).join('')}
+    <td>฿${fmt(grandT)}</td><td>${pctN(grandT,grandTgt).toFixed(1)}%</td><td></td></tr></tfoot>`;
+  document.getElementById('branchTbl').innerHTML=html;
 }
 
-// ═══════════════════════════════════════════════════════════
-//  PROMO TAB
-// ═══════════════════════════════════════════════════════════
-function buildPromoMonthSel(){
-  const sel=document.getElementById('promoMonth');
-  sel.innerHTML=MONTHS.slice(0,5).map((m,i)=>`<option value="${i}" ${i===3?'selected':''}>${m}</option>`).join('');
+// ═══ PROMO ═══
+let selPromoBranch=0;
+
+function buildPromoUI(){
+  const sel=document.getElementById('promoTrendBranch');
+  sel.innerHTML=`<option value="all">รวมทุกสาขา</option>`+BRANCHES.map((b,i)=>`<option value="${i}">${b}</option>`).join('');
+  document.getElementById('promoBranchPills').innerHTML=BRANCHES.map((b,i)=>`
+    <button class="pill ${i===0?'active':''}" onclick="selPromoBranch=${i};document.querySelectorAll('#promoBranchPills .pill').forEach((p,j)=>p.classList.toggle('active',j===${i}));renderPromoHistBranch(${i})">${b}</button>`).join('');
 }
 
-let promoInputs={};
+function renderPromoHistBranch(bi){
+  const branch=BRANCHES[bi];
+  const st=ALL_STATS[branch];
+  const vals=PROMO_DATA[branch].filter(([,s])=>s>0).map(([,s])=>s);
+  const overallAvg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+  const sorted=Object.entries(st).sort((a,b)=>b[1].avg-a[1].avg);
+  const [bestP]=sorted[0]||[];
 
-function renderPromoCards(){
-  const mi=parseInt(document.getElementById('promoMonth').value);
-  const wk=parseInt(document.getElementById('promoWeek').value);
-  const weeklyTgts=[20000,10000,10000,8750,18750,17500,11250,15000];
+  const promoTypeLabel=(p)=>{
+    if(!p) return ['⚪','ไม่มีโปร','#94A3B8'];
+    if(p.includes('Gift')||p.includes('Bag')||p.includes('800')) return ['🔴','แรง','#D85A30'];
+    if(p.includes('2 PC')||p.includes('2PC')||p.includes('50')) return ['🟡','กลาง','#E8A317'];
+    if(p.includes('10%')) return ['🟢','เบา','#1D9E75'];
+    return ['⚪','ไม่มีโปร','#94A3B8'];
+  };
 
-  document.getElementById('promoCards').innerHTML=BRANCHES.map((b,bi)=>{
-    const opts=PROMO_OPTIONS[b]||[];
-    const optSel=opts.map(o=>`<option value="${o.name}">${o.name} (฿${fmt(o[7])}/wk)</option>`).join('');
-    const prev=promoInputs[b]||{sales7:0,sales5:0,promo:opts[0]?.name||'Dis 10%'};
-    return `<div class="promo-card" id="pc-${bi}">
-      <div class="promo-card-header">
-        <span class="branch-name">${b}</span>
-        <span class="tag tag-neu">WK${wk}</span>
+  const badgesHtml=sorted.map(([p,s])=>{
+    const isBest=(p===bestP);
+    const isGood=s.avg>overallAvg;
+    const [ico,lvl,col]=promoTypeLabel(p);
+    const bg=isBest?'#FFF9C4':isGood?'#E8F5E9':'#FFF5F5';
+    const border=isBest?`border:2px solid ${col}`:isGood?'border:1px solid #A7F3D0':'border:1px solid #FECAca';
+    return `<div class="ph-badge" style="background:${bg};${border}">
+      ${isBest?'<div class="crown">🏆</div>':''}
+      <div class="ph-badge-promo">${p}</div>
+      <div class="ph-badge-avg" style="color:${col}">฿${fmt(s.avg)}</div>
+      <div class="ph-badge-meta">สูงสุด ฿${fmt(s.max)} · n=${s.count}สัปดาห์</div>
+      <span class="ph-badge-level" style="background:${col}22;color:${col}">${ico} ${lvl}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('promoHistContent').innerHTML=`
+    <div style="background:#EEF4FF;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--muted)">
+      avg ทุกสัปดาห์: <strong>฿${fmt(overallAvg)}</strong> · ${sorted.length} โปรที่ใช้ · Best: <strong style="color:var(--blue)">${bestP||'—'}</strong>
+    </div>
+    <div class="ph-badge-grid">${badgesHtml}</div>
+    <div style="margin-top:14px;overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th style="text-align:left">โปรโมชั่น</th><th>avg/สัปดาห์</th><th>สูงสุด</th><th>ต่ำสุด</th><th>รวม</th><th>ใช้ (สัปดาห์)</th><th>เทียบ avg</th><th>ผล</th></tr></thead>
+        <tbody>${sorted.map(([p,s])=>{
+          const isBest=p===bestP,isGood=s.avg>overallAvg;
+          const diff=s.avg-overallAvg;
+          return `<tr style="${isBest?'background:#FFFDE7':isGood?'background:#F0FDF4':''}">
+            <td>${isBest?'🏆 ':''}<strong>${p}</strong></td>
+            <td><strong>฿${fmt(s.avg)}</strong></td><td>฿${fmt(s.max)}</td><td>฿${fmt(s.min)}</td>
+            <td>฿${fmt(s.total)}</td><td>${s.count}</td>
+            <td class="${diff>=0?'up':'dn'}">${diff>=0?'+':''}฿${fmt(diff)}</td>
+            <td>${isBest?'<span class="tag t-ok">Best ✓</span>':isGood?'<span class="tag t-warn">ดี</span>':'<span class="tag t-fail">ต่ำ</span>'}</td>
+          </tr>`;}).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderPromoTrend(){
+  if(charts.promo)charts.promo.destroy();
+  const selBranch=document.getElementById('promoTrendBranch').value;
+  let datasets=[];
+
+  if(selBranch==='all'){
+    const totals=WEEKS.map((_,wi)=>BRANCHES.map(b=>PROMO_DATA[b][wi][1]).reduce((s,v)=>s+v,0));
+    datasets=[{label:'รวมทุกสาขา',data:totals,borderColor:'#2E6DA4',backgroundColor:'#2E6DA418',tension:.3,pointRadius:4,borderWidth:3,fill:true}];
+    document.getElementById('legPromo').innerHTML=`<div class="leg"><div class="leg-dot" style="background:#2E6DA4"></div>รวมทุกสาขา</div>`;
+  } else {
+    const bi=parseInt(selBranch),branch=BRANCHES[bi];
+    const data=PROMO_DATA[branch].map(([,s])=>s);
+    const st=ALL_STATS[branch];
+    const overallAvg=Math.round(Object.values(st).reduce((s,v)=>s+v.total,0)/Object.values(st).reduce((s,v)=>s+v.count,0));
+    datasets=[
+      {label:branch,data,borderColor:BCOLORS[bi],backgroundColor:BCOLORS[bi]+'22',tension:.3,pointRadius:5,borderWidth:2.5},
+      {label:'avg',data:WEEKS.map(()=>overallAvg),borderColor:'#94A3B8',borderDash:[5,3],borderWidth:1.5,pointRadius:0},
+    ];
+    document.getElementById('legPromo').innerHTML=`
+      <div class="leg"><div class="leg-dot" style="background:${BCOLORS[bi]}"></div>${branch}</div>
+      <div class="leg"><div class="leg-dot" style="background:#94A3B8"></div>avg (฿${fmt(overallAvg)}/wk)</div>`;
+  }
+
+  charts.promo=new Chart(document.getElementById('cPromo'),{type:'line',
+    data:{labels:WEEKS,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw),
+          afterLabel:(ctx)=>{if(selBranch!=='all'){const[p]=PROMO_DATA[BRANCHES[parseInt(selBranch)]][ctx.dataIndex];return p?`โปร: ${p}`:'';}}}}},
+      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},
+        x:{ticks:{autoSkip:true,maxRotation:45,font:{size:9}}}}}});
+}
+
+// ═══ PLANNER ═══
+function renderPlannerCards(){
+  document.getElementById('plannerCards').innerHTML=BRANCHES.map((b,bi)=>{
+    const st=ALL_STATS[b];
+    const sorted=Object.entries(st).sort((a,x)=>x[1].avg-a[1].avg);
+    const [lastP,lastS]=PROMO_DATA[b][PROMO_DATA[b].length-1];
+    const opts=sorted.map(([p,s])=>`<option value="${p}" data-avg="${s.avg}">${p} (avg ฿${fmt(s.avg)})</option>`).join('');
+    return `<div class="promo-card">
+      <div class="promo-card-head" style="background:${BCOLORS[bi]}">
+        <span style="font-weight:800;font-size:13px">${b}</span>
+        <span style="font-size:10px;opacity:.8">Last: ${lastP||'—'}</span>
       </div>
       <div class="promo-card-body">
-        <div class="promo-form-row">
-          <label>โปรอาทิตย์นี้</label>
-          <select onchange="promoInputs['${b}']={...promoInputs['${b}']||{},promo:this.value};calcPromo(${bi},'${b}')">${optSel}</select>
-        </div>
-        <div class="promo-form-row">
-          <label>ยอดขาย 7 วัน (฿)</label>
-          <input type="number" id="s7-${bi}" value="${prev.sales7}" placeholder="0"
-            oninput="promoInputs['${b}']={...promoInputs['${b}']||{},sales7:+this.value};calcPromo(${bi},'${b}')">
-        </div>
-        <div class="promo-form-row">
-          <label>ยอดขาย 5 วัน (฿)</label>
-          <input type="number" id="s5-${bi}" value="${prev.sales5}" placeholder="0"
-            oninput="promoInputs['${b}']={...promoInputs['${b}']||{},sales5:+this.value};calcPromo(${bi},'${b}')">
-        </div>
+        <div class="form-row"><label>โปรสัปดาห์นี้</label>
+          <select id="cp-${bi}" onchange="calcPlan(${bi})">${opts}</select></div>
+        <div class="form-row"><label>ยอด 7 วัน (฿)</label>
+          <input type="number" id="s7-${bi}" value="${lastS}" oninput="calcPlan(${bi})"></div>
+        <div class="form-row"><label>ยอด 5 วัน (฿)</label>
+          <input type="number" id="s5-${bi}" value="${Math.round(lastS*5/7)}" oninput="calcPlan(${bi})"></div>
         <div class="promo-result" id="pr-${bi}">
-          <div class="rec-label">⏳ กรอกยอดขายเพื่อดูคำแนะนำ</div>
+          <div class="rec-status" style="color:var(--muted)">↑ กรอกยอดเพื่อดูคำแนะนำ</div>
         </div>
       </div>
     </div>`;
   }).join('');
+  setTimeout(()=>BRANCHES.forEach((_,i)=>calcPlan(i)),100);
 }
 
-function calcPromo(bi, branch){
+function calcPlan(bi){
+  const branch=BRANCHES[bi];
   const s7=parseFloat(document.getElementById(`s7-${bi}`)?.value)||0;
   const s5=parseFloat(document.getElementById(`s5-${bi}`)?.value)||0;
-  const tgt=BRANCH_TARGETS[bi][3]*0.25; // weekly target
-  const opts=PROMO_OPTIONS[branch]||[];
-  const p7=tgt>0?s7/tgt:0;
+  const st=ALL_STATS[branch];
+  const sorted=Object.entries(st).sort((a,x)=>x[1].avg-a[1].avg);
+  const tgt7=Math.round(BTARGETS[bi][3]/4);
+  const p7=tgt7>0?s7/tgt7:0;
 
-  let rec7, rec5, reason, recColor;
+  let rec7,rec5,statusTxt,statusCol;
   if(p7>=1.0){
-    rec7=opts[1]||opts[0]; rec5=opts[0];
-    reason='✅ ยอดดีมาก — ลดโปรลงได้ ประหยัดต้นทุน';
-    recColor='#1D9E75';
+    rec7=sorted[Math.min(1,sorted.length-1)];rec5=sorted[0];
+    statusTxt='✅ ยอดดีมาก — ลองโปรเบา/กลางเพื่อรักษากำไร';statusCol='var(--teal)';
   } else if(p7>=0.7){
-    rec7=opts[2]||opts[1]; rec5=opts[1]||opts[0];
-    reason='⚠️ ยอดพอใช้ — เพิ่มโปรอีกระดับเพื่อเพิ่มยอด';
-    recColor='#E8A317';
+    rec7=sorted[Math.floor(sorted.length/2)]||sorted[0];rec5=sorted[Math.floor(sorted.length/2)]||sorted[0];
+    statusTxt='⚠️ ยอดพอใช้ — เพิ่มโปรอีกระดับ';statusCol='var(--warn)';
   } else {
-    rec7=opts[opts.length-1]; rec5=opts[opts.length-2]||opts[opts.length-1];
-    reason='🔴 ยอดต่ำ — ใช้โปรแรงสุดเพื่อดึงลูกค้า';
-    recColor='#D85A30';
+    rec7=sorted[0];rec5=sorted[0];
+    statusTxt='🔴 ยอดต่ำ — ใช้โปรที่ดีที่สุด';statusCol='var(--red)';
   }
 
-  const html=`
-    <div class="rec-label" style="color:${recColor}">${reason}</div>
-    <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div style="background:#EEF7FF;border-radius:6px;padding:8px">
-        <div style="font-size:10px;color:var(--muted);font-weight:700">แนะนำ 7 วัน</div>
-        <div class="rec-7">${rec7?.name||'—'}</div>
-        <div style="font-size:11px;color:var(--muted)">คาด ฿${fmt(rec7?.[7]||0)}/wk</div>
-      </div>
-      <div style="background:#E8F5E9;border-radius:6px;padding:8px">
-        <div style="font-size:10px;color:var(--muted);font-weight:700">แนะนำ 5 วัน</div>
-        <div class="rec-5">${rec5?.name||'—'}</div>
-        <div style="font-size:11px;color:var(--muted)">คาด ฿${fmt(rec5?.[5]||0)}/5วัน</div>
-      </div>
+  document.getElementById(`pr-${bi}`).innerHTML=`
+    <div class="rec-status" style="color:${statusCol}">${statusTxt}</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:6px">
+      ยอด 7 วัน ฿${fmt(s7)} vs เป้า ฿${fmt(tgt7)} = ${(p7*100).toFixed(0)}%
     </div>
-    <div style="margin-top:8px;font-size:11px;color:var(--muted)">
-      ยอด 7 วัน: ฿${fmt(s7)} | เป้าสัปดาห์: ฿${fmt(tgt)} | ${(p7*100).toFixed(0)}% vs เป้า
+    <div class="rec-grid">
+      <div class="rec-box rec-box-7">
+        <div class="rec-box-label">แนะนำ 7 วัน</div>
+        <div class="rec-box-promo">${rec7?.[0]||'—'}</div>
+        <div class="rec-box-amt">คาด ฿${fmt(rec7?.[1]?.avg||0)}/wk</div>
+      </div>
+      <div class="rec-box rec-box-5">
+        <div class="rec-box-label">แนะนำ 5 วัน</div>
+        <div class="rec-box-promo">${rec5?.[0]||'—'}</div>
+        <div class="rec-box-amt">คาด ฿${fmt(Math.round((rec5?.[1]?.avg||0)*5/7))}/5วัน</div>
+      </div>
     </div>`;
-  document.getElementById(`pr-${bi}`).innerHTML=html;
 }
 
-function analyzeAll(){
-  BRANCHES.forEach((_,bi)=>calcPromo(bi,BRANCHES[bi]));
-}
+function analyzeAllBranches(){BRANCHES.forEach((_,i)=>calcPlan(i));}
 
-function renderPromoChart(){
-  if(charts.promo)charts.promo.destroy();
-  const cols=['#2E6DA4','#D85A30','#1D9E75','#7F77DD','#E8A317'];
-  document.getElementById('leg-promo').innerHTML=[
-    {n:'รวมทุกสาขา',c:'#2E6DA4'},...PROMO_HISTORY.map((b,i)=>({n:b.name,c:cols[i+1]}))
-  ].map(l=>`<div class="leg-item"><div class="leg-dot" style="background:${l.c}"></div>${l.n}</div>`).join('');
-
-  charts.promo=new Chart(document.getElementById('cPromo'),{type:'line',
-    data:{labels:PROMO_WEEKS,datasets:[
-      {label:'Total',data:PROMO_TOTALS,borderColor:'#2E6DA4',backgroundColor:'#2E6DA418',tension:.3,pointRadius:5,borderWidth:3,fill:true},
-      ...PROMO_HISTORY.map((b,i)=>({label:b.name,data:b.data,borderColor:cols[i+1],tension:.3,pointRadius:3,borderWidth:1.5}))
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+fmt(c.raw)}}},
-      scales:{y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K'},grid:{color:'rgba(0,0,0,.04)'}},
-        x:{ticks:{autoSkip:true,maxRotation:45,font:{size:10}}}}}});
-}
-
-function renderPromoHistTable(){
-  const levels=[
-    {min:0.85,label:'🔴 โปรแรง',bg:'#FFF0ED',color:'#D85A30',desc:'ดึงลูกค้าสูงสุด','pro':'ยอดขายเพิ่มมาก','con':'กำไรต่อชิ้นลด'},
-    {min:0.5,label:'🟡 โปรกลาง',bg:'#FFFBEB',color:'#E8A317',desc:'สมดุลยอด/กำไร','pro':'สมดุลดี','con':'ต้องติดตาม'},
-    {min:0,label:'🟢 โปรเบา',bg:'#F0FDF4',color:'#1D9E75',desc:'รักษากำไร','pro':'กำไรดี','con':'ยอดโตช้า'},
-  ];
-
-  let html=`<thead><tr><th>สาขา</th><th>โปรโมชั่น</th><th>คาดยอด 7 วัน</th><th>คาดยอด 5 วัน</th><th>ระดับ</th><th>เหมาะกับ</th><th>ข้อดี</th><th>ข้อเสีย</th></tr></thead><tbody>`;
-
-  BRANCHES.forEach(b=>{
-    const opts=PROMO_OPTIONS[b]||[];
-    const maxS=Math.max(...opts.map(o=>o[7]));
-    const minS=Math.min(...opts.map(o=>o[7]));
-    const mid=(maxS+minS)/2;
-    opts.sort((a,x)=>a[7]-x[7]).forEach((o,pi)=>{
-      const lv=o[7]>=maxS*0.9?levels[0]:o[7]>=mid?levels[1]:levels[2];
-      html+=`<tr>
-        <td>${pi===0?`<strong>${b}</strong>`:''}</td>
-        <td>${o.name}</td>
-        <td>฿${fmt(o[7])}</td>
-        <td>฿${fmt(o[5])}</td>
-        <td><span style="background:${lv.bg};color:${lv.color};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">${lv.label}</span></td>
-        <td style="font-size:12px">${lv.desc}</td>
-        <td style="font-size:11px;color:var(--teal)">${lv.pro}</td>
-        <td style="font-size:11px;color:var(--red)">${lv.con}</td>
-      </tr>`;
-    });
-  });
-  html+='</tbody>';
-  document.getElementById('promoHistTable').innerHTML=html;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  TAB & SETUP
-// ═══════════════════════════════════════════════════════════
-function showTab(name,el){
+// ═══ TAB & SETUP ═══
+function showTab(n,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+n).classList.add('active');
   el.classList.add('active');
 }
 
 function saveAndLoad(){
-  const url=document.getElementById('scriptUrl').value.trim();
-  if(url)localStorage.setItem('salesDashUrl',url);
+  const u=document.getElementById('scriptUrl').value.trim();
+  if(u)localStorage.setItem('sdUrl',u);
   loadData();
 }
 
-const saved=localStorage.getItem('salesDashUrl');
-if(saved)document.getElementById('scriptUrl').value=saved;
+const savedU=localStorage.getItem('sdUrl');
+if(savedU)document.getElementById('scriptUrl').value=savedU;
 loadData();
 </script>
 </body>
